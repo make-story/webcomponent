@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>shadow DOM 테스트</title>
+<!-- CSS //-->
+<style>
+
+</style>
+</head>
+<body>
+<div>
+	shadow DOM test
+</div>
+
+<!-- 기본 shadow dom (브라우저) //-->
+<input type="range">
+
+<!-- 테스트1 //-->
+<div id="test"></div>
+<template id="template">
+	<h1>Test</h1>
+	<p>유성민</p>
+	<script>
+		// JavaScript 실행 테스트 
+		alert('test');	
+		console.log('test');
+	</script>
+</template>
+
+<!-- 테스트2 //-->
+<api-test></api-test>
+<div class="custom">커스텀앨리먼트</div>
+<div class="shadow">쉐도우돔</div>
+
+<!-- 테스트3 //-->
+<!-- shadow dom 생성/연결할 shadow host 일반 요소(node) //-->
+<header id="shadow-host"></header>
+
+<!-- showdom 렌더링 -->
+<!--header id="shadow-host">
+	#shadow-host (closed)
+	<style>
+	* {
+		color: #eee;
+	}
+	</style>
+	<h1>Hello 유성민</h1>
+</header-->
+
+<!-- 테스트4 //-->
+<div id="inside">
+	<!--ysm-test>test</ysm-test-->
+</div>
+<template id="template_inside_test">
+	<ysm-test>test</ysm-test>
+	<script>
+		class ApiTestElement extends HTMLElement {
+			constructor() {
+				console.log('constructor');
+				super();
+			}
+
+			// 기본 스팩 
+			// 커스텀 엘리먼트가 처음 document의 DOM에 연결될 때 호출
+			// 커스텀 엘리먼트 태그를 선언하면 호출
+			connectedCallback() {
+				console.log('connectedCallback');
+
+				// 커스텀 태그가 생성되는지 테스트를 위해 html 을 변경한다.
+				this.innerHTML = '<h1>ysm!</h1>';
+			}
+		}
+		customElements.define('ysm-test', ApiTestElement);
+	</script>
+</template>
+
+<!-- 테스트5 //-->
+<div id="html_import"></div>
+
+<!-- JS //-->
+<!--script type="text/javascript" src="http://code.jquery.com/jquery-1.12.0.min.js"></script-->
+<script type="text/javascript" src="http://makestory.net/test/js/jquery-1.10.2.js"></script>
+<script>
+/*
+테스트1
+*/
+// shadow dom 만들고, shadow dom 내부 요소 셀렉터 (shadowRoot)
+// 템플릿 내부 JavaScript 실행되는지 테스트 (정상실행된다!)
+var template = document.querySelector('#template');
+var content = document.importNode(template.content, true);
+var shadowRoot = document.querySelector('#test').attachShadow({mode: 'open'});
+shadowRoot.appendChild(content);
+if(document.querySelector('#test').shadowRoot) {
+	// document 에서 element 검색할 경우 
+	// console.log(document.querySelectorAll('p')); // 셀렉터 검출 안된다.
+
+	// shadowRoot 를 먼저 찾고, 내부 검색을 해야 한다.
+	console.log(document.querySelector('#test').shadowRoot.querySelectorAll('p'));
+}
+
+/*
+테스트2
+*/
+// 커스텀앨리먼트 만들고, shadow dom 으로 DOM/CSS 캡슐화 
+customElements.define('api-test', class extends HTMLElement {
+	constructor() {
+		// always call super() first in the constructor.
+		super(); 
+
+		// shadow root
+		const shadowRoot = this.attachShadow({mode: 'open'});
+		shadowRoot.innerHTML = `
+			<style>
+			.custom {
+				color: #EEE;
+			}
+			.shadow {
+				color: #FFF;
+			}
+			</style>
+			<div class="custom">커스텀앨리먼트</div>
+			<div class="shadow">쉐도우돔</div>
+		`;
+	}
+});
+
+/*
+테스트4
+*/
+// 쉐도우돔 내부 커스텀앨리먼트 테스트 
+// 생성/실행된다.
+var inside = document.querySelector('#inside');
+var template_inside_test = document.querySelector('#template_inside_test');
+inside.attachShadow({mode: 'open'}).appendChild(template_inside_test.content.cloneNode(true));
+
+/*
+테스트3
+*/
+// 쉐도우 돔 내부 JavaScrpt 전역 처리여부 테스트 
+// 쉐도우 돔이라고 하더라고, JavaScript 는 전역 영향을 준다!
+(function() {
+	// shadow host
+	let shadowHost = document.querySelector('#shadow-host'); 
+	// shadow root - mode: open or closed
+	let shadowRoot = shadowHost.attachShadow({mode: 'open'}); 
+	// shadow tree
+	shadowRoot.innerHTML = ` 
+		<style>
+		* {
+			color: #eee;
+		}
+		</style>
+		<h1>Hello 유성민</h1>
+	`;
+	// JavaScript 는 캡슐화 되지 않는다. (ES6 Module 형태로 캠슐화)
+	/*let script = document.createElement('script');
+	script.text = `
+		var elements = document.querySelectorAll('*');
+		var node;
+		for(node of elements) {
+			node.innerHTML = '오염!';
+		}
+	`;
+	shadowRoot.appendChild(script);*/
+	// shadow root 접근 
+	// attachShadow({mode: 'closed'}) 경우 접근 불가, null 반환
+	console.log(document.querySelector('#shadow-host').shadowRoot); 
+})();
+
+
+
+/*
+테스트5
+*/
+// 외부 소스 (외부 html 내부에 script 태그가 있을 경우, document에 넣어도 작동하지 않는다.) 
+var getHTMLTest = function() {
+	$.ajax({
+		'type': 'get',
+		'url': "//makestory.net/test/application/story/test.html",
+		'success': function(html) {
+			console.log(html);
+			// 내부에 script 가 있으면, 실행되지 않는다. eval() 방법 활용해보자.
+			//var template = document.createElement('template');
+			var key = 'html_import';
+			var target = document.querySelector('#' + key); // shadow dom 만들 타겟 
+			var scripts, head, first;
+			var i, max;
+			var node, code;
+			var setScriptTag = function(node, code, is) {
+				var script = document.createElement("script");
+				var inline = document.createTextNode(code);
+
+				//console.log(code);
+				//script.text = code;
+				script.appendChild(inline); 
+				node.parentNode.insertBefore(script, node);
+				if(is !== false && script.parentNode) {
+					script.parentNode.removeChild(script);
+				}
+				script = null;
+			};
+
+			// encodeURIComponent / decodeURIComponent
+			html = decodeURIComponent(html || ''); 
+
+			/*
+			-
+			jQuery 방식 (외부 html 코드내 script 코드가 있을 경우, ajax로 불러온 후 해당 script 실행)
+			*/
+			/*return (function() {
+				var template = document.createElement('template');
+				template.innerHTML = html;
+				$(target).append(template.content.cloneNode(true));
+			})();*/
+
+
+			/*
+			-
+			네이티브 방식
+			*/
+			console.dir(target.shadowRoot);
+			if(target.shadowRoot) {
+				// 기존 shadow dom 적용되어 있음 
+				target.shadowRoot.innerHTML = html;
+			}else {
+				// 신규 shadow dom 적용 
+				target.attachShadow({mode: 'open'}).innerHTML = html;
+			}
+
+			// shadow dom 내부 script 리스트, head 위치 
+			scripts = target.shadowRoot.querySelectorAll('script');
+			head = target.shadowRoot.querySelector('head');
+			first = target.shadowRoot.firstChild;
+
+			// makestory 전용 코드 (makestory 와 외부 html코드 연결 통로제공)
+			code = '\
+				/*console.log(document.getRootNode());*/\
+				console.log("' + key + '");\
+				/*if(typeof makestory === "undefined") {\
+					let makestory = {};\
+				}else if(typeof makestory !== "object") {\
+					makestory = {};\
+				}*/\
+				var makestory = {};\
+				makestory.document = document.getRootNode().getElementById("' + key + '").shadowRoot;\
+				makestory.getElementById = function(selector) {\
+					return makestory.document.getElementById(selector);\
+				};\
+				makestory.querySelector = function(selector) {\
+					return makestory.document.querySelector(selector);\
+				};\
+				makestory.querySelectorAll = function(selector) {\
+					return makestory.document.querySelectorAll(selector);\
+				};\
+			';
+			if(scripts.length) {
+				console.log(scripts);
+				setScriptTag(scripts[0], code, false);
+			}else if(head) {
+				console.log(head);
+				setScriptTag(head.firstChild, code, false);
+			}else if(first) {
+				console.log(first);
+				setScriptTag(first, code, false);
+			}else {
+				console.log('에러!');
+				return false;
+			}
+
+			// 동적 html load(ajax)된 script tag 는 실행이 안된다. 아래와 같이 실행해줘야 한다.
+			for(i=0, max=scripts.length; i<max; i++) {
+				node = scripts[i];
+				//console.log(node);
+				if(node.src) { // <script src="" /> 형태 
+					// jQuery 코드 내부 호출 형태 참고
+					/*$.ajax({
+						url: node.src,
+						type: "GET",
+						dataType: "script",
+						async: false,
+						global: false,
+						"throws": true
+					});*/
+
+					// xhr 동기 방식으로 호출한다.
+					(function() {
+						var instance = new XMLHttpRequest();
+						if(typeof instance === 'object' && 'withCredentials' in instance) {
+							//instance.abort();
+							instance.open('GET', node.src, false); // 동기방식으로 호출 - 동기방식으로 호출할 경우, 크롬에서는 콘솔에 경고 메시지 출력(동기방식은 Ajax에 있어 비효율이라는 내용)
+							//instance.setRequestHeader('Accept', '*/*');
+							//instance.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // X-Requested-With 헤더는, 해당 요청이 Ajax라는 걸 의미 (비표준)
+							//instance.timeout = 3000; // time in milliseconds
+							instance.onreadystatechange = function() {
+								switch(instance.readyState) {
+									case 0: // 객체만 생성되고 아직 초기화되지 않은 상태(open 메소드가 호출되지 않음)
+										break;
+									case 1: // open 메소드가 호출되고 아직 send 메소드가 불리지 않은 상태
+									case 2: // send 메소드가 불렸지만 status와 헤더는 도착하지 않은 상태
+										// 연결 진행
+										break;
+									case 3: // 데이터의 일부를 받은 상태
+										break;
+									case 4: // 데이터를 전부 받은 상태
+										break;
+								}
+							};
+							instance.onload = function(event) { 
+								var code;
+								if(instance.status == 200) {
+									code = instance.response || instance.responseText || instance.responseXML; // XMLHttpRequest Level 2
+									setScriptTag(node, code);
+								}
+							};
+							instance.ontimeout = function(event) {
+
+							};
+							instance.onerror = function(event) {
+
+							};
+							instance.send();
+						}
+					})();
+
+					// 동기 방식으로 적용해야 하므로, 아래 방식을 사용할 수 없다.
+					/*(function() {
+						var script = document.createElement("script");
+						// 해당 script 속성 
+						script.async = false;
+						//if(s.scriptCharset) {
+							//script.charset = s.scriptCharset;
+						//}
+						script.src = node.src;
+
+						script.onload = script.onreadystatechange = function(_, isAbort) {
+							if(isAbort || !script.readyState || /loaded|complete/.test( script.readyState)) {
+								// Handle memory leak in IE
+								script.onload = script.onreadystatechange = null;
+
+								// Remove the script
+								if(script.parentNode) {
+									script.parentNode.removeChild(script);
+								}
+
+								// Dereference the script
+								script = null;
+
+								// Callback if not abort
+								if(!isAbort) {
+									// 다음 스크립트를 실행시켜야 한다.
+
+									//callback(200, "success");
+								}
+							}
+						};
+
+						// Circumvent IE6 bugs with base elements (#2709 and #4378) by prepending
+						// Use native DOM manipulation to avoid our domManip AJAX trickery
+						node.parentNode.insertBefore(script, node);
+					})();*/
+				}else { // < script >code...</ script > 형태 
+					code = (node.text || node.textContent || node.innerHTML || "").replace(/^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g, "");
+					//window["eval"].call(window, code);
+					setScriptTag(node, code);
+				}
+			}
+			
+			//target.appendChild(document.importNode(template.content, true));
+			//$('#html_import').append(document.importNode(template.content, true));
+			//$('body').append(document.importNode(template.content, true));
+			//target.appendChild(document.importNode(template.content, true));
+		}
+	});
+};
+//getHTMLTest();
+</script>
+</body>
+</html>
