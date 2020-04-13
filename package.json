@@ -1,0 +1,19 @@
+{
+  "name": "webcomponent.git",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/make-story/webcomponent.git",
+  "author": "sung-min <ysm0203@cj.net>",
+  "license": "MIT",
+  "dependencies": {
+    
+  },
+  "devDependencies": {
+    "yarn": "^1.22.4",
+    "gh-pages": "^2.2.0"
+  },
+  "homepage": "https://make-story.github.io/webcomponent",
+  "scripts": {
+    "deploy": "gh-pages build"
+  }
+}
