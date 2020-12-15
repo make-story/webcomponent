@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+</head>
+<body>
+<!-- Template //-->
+<div id="templateTest">
+	<!-- 타겟 //-->
+	<table>
+		<thead>
+			<tr>
+				<th>test1</th>
+				<th>test2</th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+</div>
+<template id="templateElement">
+	<tr>
+		<td class="js_td1"></td>
+		<td class="js_td2"></td>
+	</tr>
+</template>
+
+
+<!-- ShadowDOM //-->
+<div id="none-shadow" class="wrap-item">
+	<!-- dom //-->
+</div>
+<div id="shadow-host" class="wrap-item">
+	<!-- shadow dom //-->
+</div>
+<div class="wrap-item">
+	<button class="button-normal" id="shadowDomButton1">ShadowDOM 미적용 코드 삽입</button>
+	<button class="button-normal" id="shadowDomButton2">ShadowDOM 적용 코드 삽입</button>
+</div>
+
+
+<!-- CustomElements //-->
+<div id="customelementsTest">
+	<current-time>
+		<!-- 6/11/2017, 11:55:49 -->
+	</current-time>
+</div>
+
+
+<!-- Module //-->
+<div id="moduleTest">
+						
+</div>
+<!-- 모듈 preload //-->
+<link rel="modulepreload" href="../src/javascript/module/b.js">
+<!-- type="module" 동일 파일 한번만 로드 //-->
+<!-- 모듈은 기본적으로 지연(Deferred) - 기본적으로 HTML 파서를 지연 //-->
+<!-- 구글에서는 .mjs확장자를 사용하길 권장 (모듈파일인지 식별, nodejs의 실험적 모듈 기능 지원은 오직 .mjs파일에서만 동작) //-->
+<script type="module" src="../src/javascript/module/c.js"></script>
+<script type="module" src="../src/javascript/module/c.js"></script>
+<!-- module 미지원 브라우저 대응(safari 10.1 은 nomodule 속성외 추가적 대응 필요) //-->
+<!-- https://gist.github.com/samthor/64b114e4a4f539915a95b91ffd340acc //-->
+<script nomodule src="../src/javascript/module/c.js"></script>
+
+
+<!-- Components //-->
+<div id="componentsTest">
+	<module-1234></module-1234>
+</div>
+<!-- dynamic import (동적 import) //-->
+<!-- static import를 사용하려면, 모든 모듈이 다운로드 된 뒤에 코드가 execution //-->
+<!-- https://v8.dev/features/dynamic-import //-->
+<script type="module">
+// async, await ES8 스펙 (Promise는 ES6 스펙) - async/await는 Promise를 사용
+// 동적으로 선언(커스텀엘리먼트 등)에 필요한 리소스(종속된 import 포함)만 동적 로드가 가능
+if($('module-1234').length) {
+	(async () => { // async : 함수 내부에서 await 사용한다는 예약어
+		let moduleSpecifier = '../src/javascript/module/module1234.js';
+		let module = await import(moduleSpecifier); // await : 비동기 코드실행이 끝난 후 아래 코드 절차(순서)적 실행
+		customElements.define('module-1234', module.default()); // module.default() : export default 호출
+	})();
+}
+</script>
+</body>
+</html>
