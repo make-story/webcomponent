@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <link rel="modulepreload" href="../src/javascript/module/b.js">
 <!-- type="module" 동일 파일 한번만 로드 //-->
 <!--  
-기분 스크립트(script tag)는 기본적으로 HTML 파서를 지연
+기본 스크립트(script tag)는 기본적으로 HTML 파서를 지연
 모듈(script type="module")은 defer 속성을 추가한 것과 같은 script 다운로드와 html 파싱을 병행
 기본적으로 모듈은 defer 되기 때문에 모듈간의 의존관계에 따라 문제가 생기지 않습니다.
 -->
