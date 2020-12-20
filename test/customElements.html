@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>custom elements 테스트</title>
+<!-- CSS //-->
+<style>
+
+</style>
+</head>
+<body>
+<div>
+	custom elements test
+</div>
+
+<!-- 커스텀 앨리먼트 사용 구현 -->
+<h3>커스텀 앨리먼트로 구현</h3>
+<current-time locale=""></current-time>
+
+<!-- 기존 앨리먼트 사용 구현 -->
+<h3>일반 앨리먼트로 구현</h3>
+<div class="current-time"></div>
+
+<!-- slot -->
+<h3>slot test</h3>
+<div id="slot-test">
+	<span slot="title">Hello</span>
+	<span slot="desc">world</span>
+</div>
+
+<!-- Life cycle callbacks test //-->
+<h3>Life cycle callbacks test</h3>
+<div>
+	<button class="add">Add custom-square to DOM</button>
+	<button class="update">Update attributes</button>
+	<button class="remove">Remove custom-square from DOM</button>
+</div>
+
+
+
+<!-- JS //-->
+<script>
+/*
+// <slot> 요소
+// https://developers.google.com/web/fundamentals/web-components/shadowdom?hl=ko#slots
+document.querySelector('#slot-test').attachShadow({mode: 'open'}).innerHTML = `
+	<h1>
+		<!-- slot="title" 속성이 있는 태그를 아래 위치에 위치하도록 함 //-->
+		<slot name="title"></slot>
+	</h1>
+	<p>
+		<!-- slot="desc" 속성이 있는 태그를 아래 위치에 위치하도록 함 //-->
+		<slot name="desc"></slot>
+	</p>
+`;
+
+
+// 1. 커스텀 앨리먼트 방식
+/*
+https://developers.google.com/web/fundamentals/web-components/customelements?hl=ko
+
+connectedCallback: 
+사용자 정의 요소가 문서의 DOM에 처음 연결될 때 호출됩니다.
+
+disconnectedCallback: 
+사용자 정의 요소가 문서의 DOM과 연결되어 있지 않을 때 호출됩니다.
+(el.remove() 호출하면 disconnectedCallback()을 호출)
+
+attributeChangedCallback: 
+사용자 정의 요소의 속성 중 하나가 추가, 제거 또는 변경되면 호출됩니다.
+(브라우저는 observedAttributes 배열의 허용 목록에 추가된 모든 속성에 대해 attributeChangedCallback()을 호출)
+(style 또는 class와 같은 일반적인 속성, el.setAttribute(...) 호출하면 attributeChangedCallback()을 호출)
+
+adoptedCallback: 
+사용자 정의 요소를 새 문서로 이동할 때 호출됩니다.
+*/
+class CurrentTimeElement extends HTMLElement { 
+	constructor() {
+		console.log('constructor');
+
+		// 클래스 초기화. 속성이나 하위 노드는 접근할 수는 없다.
+		super();
+	}
+
+	// 기본 스팩 
+	// 커스텀 엘리먼트가 처음 document의 DOM에 연결될 때 호출
+	// 커스텀 엘리먼트 태그를 선언하면 호출
+	connectedCallback() {
+		console.log('connectedCallback');
+
+		// DOM에 추가되었다. 렌더링 등의 처리를 하자.
+		this.start();
+		
+		/*
+		connectedCallback이 실행되는 시점에 이 엘리먼트가 DOM에 추가되어 있기는 하지만, 
+		자식 엘리먼트들은 아직 DOM에 추가되지 않았다. 
+		따라서 자식 엘리먼트를 수정할 수는 있더라도, HTML에서 삽입한 자식 엘리먼트들에 접근할 수는 없다는 점에 유의
+		*/
+		console.log(this.firstChild); // null <--- 아직 자식 엘리먼트에 접근할 수는 없다.
+		console.log(this.innerHTML); // "" <--- 아직 자식 엘리먼트에 접근할 수는 없다.
+	}
+
+	// 기본 스팩 
+	// 사용자 정의 요소가 문서의 DOM과 연결되어 있지 않을 때 호출
+	disconnectedCallback() {
+		console.log('disconnectedCallback');
+
+		// DOM에서 제거되었다. 엘리먼트를 정리하는 일을 하자.
+		this.stop();
+	}
+
+	// 기본 스팩 (constructor 보다 먼저 실행됨)
+	// 속성의 변화를 감시
+	// 브라우저는 observedAttributes 배열의 허용 목록에 추가된 모든 속성에 대해 attributeChangedCallback()을 호출
+	// 성능 최적화와 관련 높음 (사용자가 style 또는 class와 같은 일반적인 속성을 변경할 때 개발자는 쓸데없이 수많은 콜백을 받는 것을 원치 않음)
+	static get observedAttributes() {
+		console.log('observedAttributes');
+
+		// 모니터링 할 속성 이름
+		return ['locale'];
+	}
+
+	// 기본 스팩 
+	// 속성의 변화에 반응 (속성이 추가/제거/변경)
+	// 사용자 정의 요소의 속성 중 하나가 추가, 제거 또는 변경되면 호출 (observedAttributes 속성에 나열된 특성만 이 콜백을 수신)
+	attributeChangedCallback(attrName, oldValue, newValue) {
+		console.log('attributeChangedCallback');
+		console.log([attrName, oldValue, newValue].join(' / '));
+
+		// 속성이 추가/제거/변경되었다.
+		if(attrName == 'locale') {
+			this.textContent = `Hello, ${newValue}`;
+		}else {
+			this[attrName] = newValue;
+		}
+	}
+
+	// 기본 스팩 
+	// 사용자 정의 요소를 새 문서로 이동할 때 호출 (해당 엘리먼트가 다른 Document에서 옮겨져 올 때 수행)
+	// 사용자설정 요소가 새 document(예: document.adoptNode(el)라고도 함)로 이동된 경우
+	adoptedCallback(oldDoc, newDoc) {
+		console.log('adoptedCallback');
+
+		// 다른 Document에서 옮겨져 왔음 (자주 쓸 일은 없을 것.)
+		
+	}
+
+	// 사용자 함수
+	start() {
+		console.log('start');
+
+		// 필요에 따라 메서드를 추가할 수 있다.
+		// 이 클래스 인스턴스는 HTMLElement이다.
+		// 따라서 `document.querySelector('current-time').start()`로 호출할 수 있다.
+		this.stop();
+		this._timer = window.setInterval(() => {
+			this.innerText = new Date().toLocaleString(this.locale);
+		}, 1000);
+	}
+
+	// 사용자 함수 
+	stop() {
+		console.log('stop');
+
+		// 이 메서드 역시 CurrentTime클래스의 필요에 의해 추가했다.
+		if(this._timer) {
+			window.clearInterval(this._timer);
+			this._timer = null;
+		}
+	}
+
+	// 사용자 함수 (get/set 테스트)
+	get toggle() { // 파라미터가 없어야 합니다.
+		// 인스턴스.toggle; 호출시 get 호출
+		// getter 삭제가능 delete 인스턴스.toggle;
+		console.log('get toggle');
+		//return this.toggle;
+	}
+	set toggle(value) { // 한개의 파라미터만 가질 수 있습니다.
+		// 인스턴스.toggle = '테스트'; 호출시 set 호출 
+		console.log('set toggle', value);
+		//this.toggle = value;
+	}
+}
+// define(tagName, constructor, options)
+//customElements.define('current-time', CurrentTimeElement);
+if(!customElements.get('current-time')) {
+	// 컴포넌트 클래스 프리징(Freezing)
+	// 만약 컴포넌트 클래스를 누군가에 의해 수정할 수 없도록 프리징하고자 한다면 Object.freeze()를 사용
+	//const FrozenCurrentTimeElement = Object.freeze(CurrentTimeElement);
+	//customElements.define("current-time", FrozenCurrentTimeElement);
+
+	customElements.define("current-time", CurrentTimeElement);
+	customElements.whenDefined('current-time').then(() => {
+		// 해당 커스텀앨리먼트 모두 적용(요소업데이트/요소확장)완료 
+		console.log('current-time ready!');
+	});
+
+	(function() {
+		// 커스텀 요소는 컴포넌트 클래스 인스턴스
+		var currentTime = document.querySelector('current-time');
+		currentTime.toggle = 'test'; // getter/setter test
+	})();
+}
+// 이미 등록(요소확장/요소업데이트)된 요소를 또 다시 등록할 경우 DOMException 발생!
+//customElements.define("current-time", CurrentTimeElement);
+
+
+// 2. 기존 일반 앨리먼트 방식 (기존 방식으로 위와 같은 커스텀엘리먼트 class 내부기능과 동일한기능 구현)
+class CurrentTime { 
+	constructor(el) {
+		this._el = el;
+		this._init();
+		this.start();
+	}
+	_init() {
+		/*
+		MutationObserver - DOM 변경 감시
+		https://developer.mozilla.org/ko/docs/Web/API/MutationObserver
+
+		childList :  대상 노드의 하위 요소의 추가 및 제거 관찰
+		attributes : 속성에 대한 관찰 
+		characterData : 데이터에 대한 관찰 
+		subtree
+		attributeOldValue : 이전 속성값 
+		characterDataOldValue : 이전 데이터값 
+		attributeFilter : 
+		*/
+
+		// 속성 변경을 모니터
+		this._localeChangedObserver = new MutationObserver(mutations => { // 감시자 인스턴스 만들기
+			mutations.forEach(mutation => {
+				if(mutation.type === 'attributes' && mutation.attributeName === 'locale') {
+					this.locale = this._el.getAttribute('locale');
+				}
+			});
+		});
+		this._localeChangedObserver.observe(this._el, { // 감시자 옵션 포함, 대상 노드에 전달
+			attributes: true,
+			attributeFilter: ['locale']
+		});
+		//this._localeChangedObserver.disconnect(); // 감시를 중지
+
+		// 엘리먼트가 DOM에서 제거되었는지 모니터
+		this._disconnectedObserver = new MutationObserver(mutations => {
+			mutations.forEach(mutation => {
+				if(mutation.type === 'childList' && Array.prototype.slice.call(mutation.removedNodes).indexOf(this._el) >= 0) {
+					this.dispose();
+				}
+			});
+		});
+		this._disconnectedObserver.observe(this._el.parentNode, {
+			childList: true
+		});
+	}
+	start() {
+		this.stop();
+		this._timer = window.setInterval(() => {
+			this._el.innerText = new Date().toLocaleString(this.locale);
+		}, 1000);
+	}
+	stop() {
+		if (this._timer) {
+			window.clearInterval(this._timer);
+			this._timer = null;
+		}
+	}
+	dispose() {
+		this.stop();
+		this._localeChangedObserver.disconnect();
+		this._disconnectedObserver.disconnect();
+	}
+	static create(el) {
+		return new CurrentTime(el);
+	}
+}
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('.current-time').forEach(el => {
+		CurrentTime.create(el);
+	});
+}, false);
+
+
+
+// 3. 라이프사이클(속성 등의 변경에 따라 class 내부 기본 기능 작동) 테스트 
+// Create a class for the element
+class Square extends HTMLElement {
+	// Specify observed attributes so that
+	// attributeChangedCallback will work
+	static get observedAttributes() {
+		return ['c', 'l'];
+	}
+
+	constructor() {
+		// Always call super first in constructor
+		super();
+
+		// 쉐도우돔 생성 
+		const shadow = this.attachShadow({mode: 'open'});
+		const div = document.createElement('div');
+		const style = document.createElement('style');
+		shadow.appendChild(style);
+		shadow.appendChild(div);
+	}
+
+	connectedCallback() {
+		console.log('Custom square element added to page.');
+		updateStyle(this);
+	}
+
+	disconnectedCallback() {
+		console.log('Custom square element removed from page.');
+	}
+
+	adoptedCallback() {
+		console.log('Custom square element moved to new page.');
+	}
+
+	attributeChangedCallback(name, oldValue, newValue) {
+		console.log('Custom square element attributes changed.', [name, oldValue, newValue].join(' / '));
+		updateStyle(this);
+	}
+}
+customElements.define('custom-square', Square);
+
+function updateStyle(element) { 
+	const shadow = element.shadowRoot;
+	shadow.querySelector('style').textContent = `
+		div {
+			width: ${element.getAttribute('l')}px;
+			height: ${element.getAttribute('l')}px;
+			background-color: ${element.getAttribute('c')};
+		}
+	`;
+}
+function random(min, max) { 
+	return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+const add = document.querySelector('.add');
+const update = document.querySelector('.update');
+const remove = document.querySelector('.remove');
+let square;
+
+update.disabled = true;
+remove.disabled = true;
+add.onclick = function() {
+	// Create a custom square element
+	square = document.createElement('custom-square'); // 위에 customElements.define 커스텀앨리먼트를 생성한다.
+	square.setAttribute('l', '100');
+	square.setAttribute('c', 'red');
+	document.body.appendChild(square);
+
+	update.disabled = false;
+	remove.disabled = false;
+	add.disabled = true;
+};
+update.onclick = function() {
+	// Randomly update square's attributes
+	square.setAttribute('l', random(50, 200));
+	square.setAttribute('c', `rgb(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)})`);
+};
+remove.onclick = function() {
+	// Remove the square
+	document.body.removeChild(square);
+
+	update.disabled = true;
+	remove.disabled = true;
+	add.disabled = false;
+};
+</script>
+</body>
+</html>

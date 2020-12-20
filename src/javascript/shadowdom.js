@@ -12,13 +12,13 @@ let templateLiterals = `
 `;
 
 // 일반적인 기존 코드 적용
-$('#shadowDomButton1').off('click').on('click', function() {
+document.querySelector('#shadowDomButton1').onclick = event => {
 	let none = document.querySelector('#none-shadow'); 
 	none.innerHTML = templateLiterals;
-});
+};
 
 // 쉐도우돔을 통한 코드 적용
-$('#shadowDomButton2').off('click').on('click', function() {
+document.querySelector('#shadowDomButton2').onclick = event => {
 	/*
 	Shadow DOM은 웹 개발의 공통 문제에 대한 솔루션을 제공
 	격리된 DOM: 구성 요소의 DOM은 자체 포함됩니다 (예: document.querySelector()는 구성 요소의 Shadow DOM에 노드를 반환하지 않음).
@@ -35,4 +35,4 @@ $('#shadowDomButton2').off('click').on('click', function() {
 	// shadow root 접근 
 	// attachShadow({mode: 'closed'}) 경우 접근 불가, null 반환
 	console.log(document.querySelector('#shadow-host').shadowRoot); 
-});
+};

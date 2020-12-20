@@ -97,12 +97,12 @@ let templateLiterals = `
 	<span>안녕하세요. 유성민 입니다.</span>
 `;
 // 일반적인 기존 코드 적용
-$('#shadowDomButton1').off('click').on('click', function() {
+document.querySelector('#shadowDomButton1').onclick = event => {
 	let none = document.querySelector('#none-shadow'); 
 	none.innerHTML = templateLiterals;
-});
+};
 // 쉐도우돔을 통한 코드 적용
-$('#shadowDomButton2').off('click').on('click', function() {
+document.querySelector('#shadowDomButton2').onclick = event => {
 	/*
 	Shadow DOM은 웹 개발의 공통 문제에 대한 솔루션을 제공
 	격리된 DOM: 구성 요소의 DOM은 자체 포함됩니다 (예: document.querySelector()는 구성 요소의 Shadow DOM에 노드를 반환하지 않음).
@@ -119,7 +119,7 @@ $('#shadowDomButton2').off('click').on('click', function() {
 	// shadow root 접근 
 	// attachShadow({mode: 'closed'}) 경우 접근 불가, null 반환
 	console.log(document.querySelector('#shadow-host').shadowRoot); 
-});
+};
 ```
 
 ----------
@@ -348,7 +348,11 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- 모듈 preload //-->
 <link rel="modulepreload" href="../src/javascript/module/b.js">
 <!-- type="module" 동일 파일 한번만 로드 //-->
-<!-- 모듈은 기본적으로 지연(Deferred) - 기본적으로 HTML 파서를 지연 //-->
+<!--  
+기분 스크립트(script tag)는 기본적으로 HTML 파서를 지연
+모듈(script type="module")은 defer 속성을 추가한 것과 같은 script 다운로드와 html 파싱을 병행
+기본적으로 모듈은 defer 되기 때문에 모듈간의 의존관계에 따라 문제가 생기지 않습니다.
+-->
 <!-- 구글에서는 .mjs확장자를 사용하길 권장 (모듈파일인지 식별, nodejs의 실험적 모듈 기능 지원은 오직 .mjs파일에서만 동작) //-->
 <script type="module" src="../src/javascript/module/c.js"></script>
 <script type="module" src="../src/javascript/module/c.js"></script>
@@ -371,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <script type="module">
 // async, await ES8 스펙 (Promise는 ES6 스펙) - async/await는 Promise를 사용
 // 동적으로 선언(커스텀엘리먼트 등)에 필요한 리소스(종속된 import 포함)만 동적 로드가 가능
-if($('module-1234').length) {
+if(document.querySelector('module-1234')) {
 	(async () => { // async : 함수 내부에서 await 사용한다는 예약어
 		let moduleSpecifier = '../src/javascript/module/module1234.js';
 		let module = await import(moduleSpecifier); // await : 비동기 코드실행이 끝난 후 아래 코드 절차(순서)적 실행

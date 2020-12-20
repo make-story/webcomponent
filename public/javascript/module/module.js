@@ -3,7 +3,6 @@
 <link rel="modulepreload" href="/test/module/b.js">
 
 <!-- type="module" 동일 파일 한번만 로드 //-->
-<!-- 모듈은 기본적으로 지연(Deferred) - 기본적으로 HTML 파서를 지연 //-->
 <!-- 구글에서는 .mjs확장자를 사용하길 권장 (모듈파일인지 식별, nodejs의 실험적 모듈 기능 지원은 오직 .mjs파일에서만 동작) //-->
 <script type="module" src="/test/module/c.js"></script>
 <script type="module" src="/test/module/c.js"></script>
