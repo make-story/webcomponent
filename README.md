@@ -1,6 +1,13 @@
 # Web Component  
 
-> http://makeapi.net/test/webcomponents.html  
+> 실행예제
+http://makeapi.net/test/webcomponents.html  
+  
+> 정리문서
+http://makestory.net/media/#/view/59  
+  
+> PPT 발표자료
+http://makestory.net/media/#/view/774  
   
 ----------
 
