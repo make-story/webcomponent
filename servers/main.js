@@ -23,9 +23,9 @@ app.set('views', path.resolve(__dirname, '../pages')); // view 관련 파일이 
 app.engine('html', require('ejs').renderFile); // html 에서 ejs 사용가능하도록 설정
 
 // 이미지, CSS 파일 및 JavaScript 파일과 같은 정적 파일 경로 설정
+app.use('/test', express.static(path.resolve(__dirname, '../test')));
 app.use(express.static(path.resolve(__dirname, '../dist')));
 app.use(express.static(path.resolve(__dirname, '../public')));
-app.use(express.static(path.resolve(__dirname, '../test')));
 
 // redirect HTTP to HTTPS 
 /*app.all('*', (request, response, next) => { 
