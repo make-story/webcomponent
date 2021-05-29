@@ -6,7 +6,15 @@ const express = require('express');
 //const cors = require('cors');
 //const cookieParser = require('cookie-parser');
 
+// env
 const env = require(path.resolve(__dirname, '../config/env'));
+
+// build manifest
+const manifestRead = require(path.resolve(__dirname, '../config/manifest-read'));
+const manifestTag = require(path.resolve(__dirname, '../config/manifest-tag'));
+const manifest = {
+	webcomponent: manifestRead({name: 'webcomponent'}),
+};
 
 // express app
 const app = express();
@@ -43,6 +51,21 @@ app.use(express.static(path.resolve(__dirname, '../public')));
 
 // 라우터
 //app.use('/', require(path.resolve(__dirname, './routers/global')));
+
+// 웹 컴포넌트
+app.get('/webcomponent', function(request, response) {
+	const css = {
+		webcomponent: manifestTag.css({ manifest: manifest.webcomponent }),
+	};
+	const js = {
+		webcomponent: manifestTag.js({ manifest: manifest.webcomponent }),
+	};
+	response.render('index.ejs', {
+		"title": "test",
+		"css": css,
+		"js": js,
+	});
+});
 
 // 서버 실행
 //app.listen(env.port, () => console.log(`app is working at http://localhost:${env.port}`));
