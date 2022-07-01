@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>웹 컴포넌트 테스트</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- CSS //-->
+<link rel="stylesheet" type="text/css" href="//makestory.net/css/reset.css">
+
+<!-- import html //-->
+<!--
+<script async>
+function handleLoad(e) {
+	console.log('Loaded import: ' + e.target.href);
+}
+function handleError(e) {
+	console.log('Error loading import: ' + e.target.href);
+}
+</script>
+<link rel="import" href="scoped.html" onload="handleLoad(event)" onerror="handleError(event)">
+-->
+</head>
+<body>
+<!-- 폴리필 //-->
+<script>
+(function (global) {
+	'use strict';
+
+	var document = global.document;
+	var body = document.body;
+
+	// 웹 컴포넌트를 사용할 수 있는지 검토
+	var is_support_register = 'registerElement' in document;
+	var is_support_import = 'import' in document.createElement('link');
+	var is_support_template = 'content' in document.createElement('template');
+
+	// 웹 컴포넌트를 사용할 수 없다면 폴리필 스크립트 로드
+	var polyfill;
+	if(!is_support_register || !is_support_import || !is_support_template) {
+		polyfill = document.createElement('script');
+		polyfill.src = 'https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.2/webcomponents-lite.js';
+		body.appendChild(polyfill);
+	}
+})(window);
+</script>
+
+
+
+<!-- 커스텀 엘리먼트 //-->
+<div id="event_test1">Event 비교</div>
+<ysm-test1 id="event_test2">
+	<!-- JS로 생성하지 않은 커스텀 앨리먼트는 document.getElementsByTagName('ysm-test'); 로 잡히는지 테스트 //-->
+	ysm-test1
+</ysm-test1>
+<script>
+console.log('ysm-test1', document.getElementsByTagName('ysm-test1')); // 검색 가능하다.
+document.getElementById('event_test1').addEventListener('click', function() {
+	alert('div');
+});
+document.getElementById('event_test2').addEventListener('click', function() { // 이벤트 가능하다.
+	alert('ysm-test1');
+});
+/*document.getElementsByTagName('ysm-test1').addEventListener('click', function() {
+	alert('ysm-test1');
+});*/
+document.body.appendChild(document.createElement('ysm-test2')); // 생성 가능하다.
+console.log('ysm-test2', document.getElementsByTagName('ysm-test2'));
+</script>
+
+<ul is="expanding-list"></ul>
+<p>Pellentesque ornare tellus sit amet massa tincidunt congue. Morbi cursus, tellus vitae pulvinar dictum, dui turpis faucibus ipsum, nec hendrerit augue nisi et enim. Curabitur felis metus, euismod et augue et, luctus dignissim metus. Mauris placerat tellus id efficitur ornare. Cras enim urna, vestibulum vel molestie vitae, mollis vitae eros. Sed lacinia scelerisque diam, a varius urna iaculis ut. Nam lacinia, velit consequat venenatis pellentesque, leo tortor porttitor est, sit amet accumsan ex lectus eget ipsum. Quisque luctus, ex ac fringilla tincidunt, risus mauris sagittis mauris, at iaculis mauris purus eget neque. Donec viverra in ex sed ullamcorper. In ac nisi vel enim accumsan feugiat et sed augue. Donec nisl metus, sollicitudin eu tempus a, scelerisque sed diam.</p>
+<p is="word-count"></p>
+
+<!-- 커스텀 앨리먼트 사용 구현 - fallback value -->
+<current-time>
+	<!-- 6/11/2017, 11:55:49 -->
+</current-time>
+<!-- 기존 앨리먼트 사용 구현 - fallback value -->
+<div class="current-time">
+	<!-- 6/11/2017, 11:55:49 -->
+</div>
+
+
+
+<!-- showdow dom //-->
+<div id="slot-test">
+	<!-- Light DOM -->
+	<span slot="title">Hello</span>
+	<span slot="desc">world</span>
+</div>
+<fancy-tabs background>
+	<!-- 슬롯은 여러 다양한 탬플릿을 해당 위치에 채울 수 있는 구성 요소 내부의 자리표시자입니다. (슬롯은 사용자가 컴포넌트 내부에 원하는 마크업을 채울 수 있도록 미리 선언해놓은 자리 표시자입니다.) -->
+	<!-- <slot name="title"></slot> name 속성값과 slot 속성값이 서로 매칭(서로 같은 값)된다. -->
+	<!-- slot 속성이 지정되어 있지않으면, name 속성값이 지정되지 않은 element 리스트를 가져간다. -->
+	<!-- <slot name="ysm">default text</slot> 위치로 <ul slot="ysm"></ul> 또는 <div slot="ysm"></div> 등 태그가 들어간다. -->
+	<!-- 즉, <slot> 태그은 다양한 템플릿이 올 수 있는 위치를 잡고, 그 위치로 slot="ysm" 속성값을 정해둔 템플릿이 들어(위치)간다. -->
+	<button slot="title">Tab 1</button>
+	<button slot="title" selected>Tab 2</button>
+	<button slot="title">Tab 3</button>
+	<section>content panel 1</section>
+	<section>content panel 2</section>
+	<section>content panel 3</section>
+</fancy-tabs>
+
+
+
+<!-- ES6 template 문자열 - `${}` 통해 자바스크립트 코드가 들어갈 수 있음 //-->
+<a href="//makestory.net">makestory</a>
+<script>
+var link = document.createElement("a");
+link.href = document.querySelector("a").href;
+link.innerHTML = `
+	<span>Template</span> 
+	${document.querySelector("a").textContent}
+`;
+document.body.appendChild(link);
+</script>
+
+
+
+<!-- 템플릿 //-->
+<my-paragraph></my-paragraph>
+<template id="my-paragraph">
+	<style>
+	p {
+		color: white;
+		background-color: #666;
+		padding: 5px;
+	}
+	</style>
+	<p>My paragraph</p>
+</template>
+
+
+
+<!-- import html -> showdow dom -->
+<import-html></import-html>
+
+
+<!-- JS //-->
+<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script>
+// Custom Elements (v1) Polyfill
+/*
+function execPolyfill() {
+	(function(){
+	// CustomElementsV1.min.js v1 polyfill from https://github.com/webcomponents/webcomponentsjs/tree/v1/src/CustomElements/v1.
+	'use strict';(function(){function q(a){return l.test(a)&&-1===r.indexOf(a)}function e(){this.a=new Map;this.l=new Map;this.o=new Map;this.m=new Set;this.D=new MutationObserver(this.F.bind(this));this.f=null;this.L=!0;this.h=!1;this.g(document)}var g=document,f=window,r="annotation-xml color-profile font-face font-face-src font-face-uri font-face-format font-face-name missing-glyph".split(" "),l=/^[a-z][.0-9_a-z]*-[\-.0-9_a-z]*$/;e.prototype={J:function(a,b){function c(a){var b=m[a];if(void 0!==b&&
+	"function"!==typeof b)throw Error(d+" '"+a+"' is not a Function");return b}a=a.toString().toLowerCase();if("function"!==typeof b)throw new TypeError("constructor must be a Constructor");if(!q(a))throw new SyntaxError("The element name '"+a+"' is not valid.");if(this.a.has(a))throw Error("An element with name '"+a+"' is already defined");if(this.l.has(b))throw Error("Definition failed for '"+a+"': The constructor is already used.");var d=a,m=b.prototype;if("object"!==typeof m)throw new TypeError("Definition failed for '"+
+	a+"': constructor.prototype must be an object");var e=c("connectedCallback"),f=c("disconnectedCallback"),h=c("attributeChangedCallback");this.a.set(d,{name:a,localName:d,constructor:b,w:e,A:f,v:h,K:b.observedAttributes||[]});this.l.set(b,d);this.b(g.childNodes);if(e=this.o.get(d))e.resolve(void 0),this.o.delete(d)},get:function(a){return(a=this.a.get(a))?a.constructor:void 0},M:function(a){if(!l.test(a))return Promise.reject(new SyntaxError("The element name '"+a+"' is not valid."));if(this.a.has(a))return Promise.resolve();
+	var b={B:null};b.B=new Promise(function(a){b.resolve=a});this.o.set(a,b);return b.B},C:function(){this.h&&(console.warn("flush!!!"),this.m.forEach(function(a){this.s(a.takeRecords())},this))},H:function(a){this.f=a},g:function(a){a.c=new MutationObserver(this.s.bind(this));a.c.observe(a,{childList:!0,subtree:!0});this.h&&this.m.add(a.c)},I:function(a){a.c&&(a.c.disconnect(),a.c=null,this.h&&this.m.delete(a.c))},s:function(a){for(var b=0;b<a.length;b++){var c=a[b];"childList"===c.type&&(this.b(c.addedNodes),
+	this.G(c.removedNodes))}},b:function(a){for(var b=0;b<a.length;b++){var c=a[b];if(c.nodeType===Node.ELEMENT_NODE){this.I(c);c=g.createTreeWalker(c,NodeFilter.SHOW_ELEMENT,null,!1);do{var d=c.currentNode,e=this.a.get(d.localName);e&&(d.j||this.u(d,e,!0),d.j&&!d.i&&(d.i=!0,e&&e.w&&e.w.call(d)));d.shadowRoot&&this.b(d.shadowRoot.childNodes);if("LINK"===d.tagName){var f=function(){var a=d;return function(){a.removeEventListener("load",f);this.g(a.import);this.b(a.import.childNodes)}.bind(this)}.call(this);
+	d.import?f():d.addEventListener("load",f)}}while(c.nextNode())}}},G:function(a){for(var b=0;b<a.length;b++){var c=a[b];if(c.nodeType===Node.ELEMENT_NODE){this.g(c);c=g.createTreeWalker(c,NodeFilter.SHOW_ELEMENT,null,!1);do{var d=c.currentNode;if(d.j&&d.i){d.i=!1;var e=this.a.get(d.localName);e&&e.A&&e.A.call(d)}}while(c.nextNode())}}},u:function(a,b,c){a.__proto__=b.constructor.prototype;c&&(this.H(a),a.j=!0,new b.constructor,console.assert(null==this.f));c=b.K;if(b.v&&0<c.length)for(this.D.observe(a,
+	{attributes:!0,attributeOldValue:!0,attributeFilter:c}),b=0;b<c.length;b++){var d=c[b];if(a.hasAttribute(d)){var e=a.getAttribute(d);a.v(d,null,e)}}},F:function(a){for(var b=0;b<a.length;b++){var c=a[b];if("attributes"===c.type){var d=c.attributeName,e=c.oldValue,f=c.target,g=f.getAttribute(d);f.attributeChangedCallback(d,e,g,c.attributeNamespace)}}}};window.CustomElementsRegistry=e;e.prototype.define=e.prototype.J;e.prototype.get=e.prototype.get;e.prototype.whenDefined=e.prototype.M;e.prototype.flush=
+	e.prototype.C;e.prototype.polyfilled=e.prototype.L;e.prototype.enableFlush=e.prototype.h;var h=f.HTMLElement;f.HTMLElement=function(){var a=f.customElements;if(a.f){var b=a.f;a.f=null;return b}if(this.constructor)return a=a.l.get(this.constructor),g.b(a,!1);throw Error("unknown constructor. Did you call customElements.define()?");};f.HTMLElement.prototype=Object.create(h.prototype);Object.defineProperty(f.HTMLElement.prototype,"constructor",{value:f.HTMLElement});for(var h="Button Canvas Data Head Mod TableCell TableCol Anchor Area Base Body BR DataList Details Dialog Div DList Embed FieldSet Form Heading HR Html IFrame Image Input Keygen Label Legend LI Link Map Media Menu MenuItem Meta Meter Object OList OptGroup Option Output Paragraph Param Picture Pre Progress Quote Script Select Slot Source Span Style TableCaption Table TableRow TableSection Template TextArea Time Title Track UList Unknown".split(" "),
+	k=0;k<h.length;k++){var n=window["HTML"+h[k]+"Element"];n&&(n.prototype.__proto__=f.HTMLElement.prototype)}var t=g.createElement;g.b=function(a,b){var c=f.customElements,d=t.call(g,a),e=c.a.get(a.toLowerCase());e&&c.u(d,e,b);c.g(d);return d};g.createElement=function(a){return g.b(a,!0)};var u=g.createElementNS;g.createElementNS=function(a,b){return"http://www.w3.org/1999/xhtml"===a?g.createElement(b):u.call(document,a,b)};var p=Element.prototype.attachShadow;p&&Object.defineProperty(Element.prototype,
+	"attachShadow",{value:function(a){a=p.call(this,a);f.customElements.g(a);return a}});window.customElements=new e})();
+	}).call(this);
+}
+// Remove check when https://github.com/webcomponents/webcomponentsjs/issues/548 is fixed.
+if(!!!window.customElements) {
+	execPolyfill();
+}
+*/
+</script>
+<script src="https://unpkg.com/@webcomponents/custom-elements"></script>
+<script>
+/*
+웹컴포넌트 
+https://github.com/w3c/webcomponents/
+https://developer.mozilla.org/en-US/docs/Web/Web_Components
+https://meetup.toast.com/posts/113
+https://kyu.io/ko/%EC%9B%B9-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B84%E2%80%8A-%E2%80%8Atemplate-element-html-imports/
+https://kyu.io/ko/%EC%9B%B9-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B83%e2%80%8a-%e2%80%8a%EC%89%90%EB%8F%84%EC%9A%B0-%EB%8F%94shadow-dom/
+https://developer.mozilla.org/ko/docs/Web/Web_Components/Using_templates_and_slots
+https://slides.com/rinae/deck-2#/11
+
+https://developers.google.com/web/fundamentals/web-components/customelements?hl=ko
+https://developers.google.com/web/fundamentals/web-components/shadowdom?hl=ko
+
+-
+웹 컴포넌트는 근본적인 문제를 해결하는데 집중되어 있다. 
+다른 프레임워크처럼 생산성이나 어플리케이션 구조 등에 주안점이 있는 것이 아니다. 
+때문에 웹 컴포넌트는 다른 프레임워크들과 상호 보완 구조에 가깝지, 대체하는 관계가 아님
+*/
+
+// ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- 
+
+// 커스텀 엘리먼트 사용하기 
+// 기존 createElement 라는 DOM API를 사용한 방식, 클래스를 선언하여 생성하는 방식 (사용자 기능이 내장된 요소를 만들고 재사용이 가능)
+// V0, V1 등 버전관리되고 있는 스팩
+// https://html.spec.whatwg.org/multipage/custom-elements.html#custom-elements
+// https://developers.google.com/web/fundamentals/web-components/customelements?hl=ko
+/*
+-
+사용자설정 요소 생성 관련 규칙
+1. 사용자설정 요소의 이름에는 대시(-)가 포함되어야 합니다. 
+이에 따라 <x-tags>, <my-element> 및 <my-awesome-app>은 모두 유효한 이름이지만, <tabs> 및 <foo_bar>는 그렇지 않습니다.
+이러한 요구사항은 HTML 파서가 일반 요소와 사용자설정 요소를 구별할 수 있도록 합니다. 
+또한 새로운 태그가 HTML에 추가될 때 다음 버전과의 호환성도 보장되도록 합니다.
+
+2. 동일한 태그를 두 번 이상 등록(요소확장/요소업그레이드)할 수 없습니다. 
+그렇게 하려고 하면 DOMException이 발생합니다. 
+새로운 태그에 대해 브라우저에 알리고 나면 그걸로 끝입니다. 취소할 수 없습니다.
+
+3. HTML은 몇 가지 요소만 스스로 닫도록 허용하므로 사용자설정 요소는 스스로 닫을 수 없습니다. 
+따라서 항상 닫는 태그를 작성해야 합니다(<app-drawer></app-drawer>).
+
+
+-
+html 에 <app-drawer> 형태의 사용자 태그만 선언해도 오류가 발생하지 않는다!
+페이지에 여러 <app-drawer> 요소를 선언해 두고 한참이 지날 때까지 customElements.define('app-drawer', ...)를 호출하지 않아도 됩니다. 
+이는 브라우저가 알 수 없는 태그 덕분에 잠재적인 사용자설정 요소를 각각 다르게 처리하기 때문입니다.
+define()을 호출하고 기존 요소에 클래스 정의를 부여하는 프로세스를 '요소 업그레이드'라고 합니다. 
+
+즉, <api-brawer> html을 사용했다고, customElements.define('app-drawer', ...) 선언해야만 하는 것은 아님
+<api-brawer>도 기본적으로 브라우저가 태그로 인식하고, customElements.define('app-drawer', ...) 선언할 경우 요소 업그레이드가 발생한다는 것
+
+
+"HTML은 사용하기가 까다롭지 않고 유연합니다."
+예를 들어, 페이지에 <randomtagthatdoesntexist>를 선언하면 브라우저가 이를 완전히 수락합니다. 비표준 태그가 왜 작동할까요? 
+그 해답은 HTML 사양이 이를 허용하기 때문입니다. 사양에 정의되지 않은 요소는 HTMLUnknownElement로 파싱됩니다.
+// "tabs" is not a valid custom element name
+document.createElement('tabs') instanceof HTMLUnknownElement === true
+// "x-tabs" is a valid custom element name (사용자설정 요소는 유효한 이름('-' 포함)으로 생성된 경우 HTMLElement로 파싱)
+document.createElement('x-tabs') instanceof HTMLElement === true
+
+
+-
+브라우저에서 새로운 사용자설정 요소를 정의
+define(tagName, constructor, options)
+
+유효한 사용자설정 요소의 태그 이름이 지정된 경우, 요소의 생성자를 반환
+(요소 정의가 등록되지 않은 경우 undefined를 반환)
+let Drawer = customElements.get('app-drawer');
+let drawer = new Drawer();
+
+사용자설정 요소가 정의된 경우 이를 확인하는 프라미스를 반환
+요소가 이미 정의된 경우 즉시 확인
+태그 이름이 유효한 사용자설정 요소 이름이 아닌 경우 거부
+customElements.whenDefined('app-drawer').then(() => {
+	// <app-drawer> 태그가 모두 define 적용됨
+	console.log('app-drawer defined');
+});
+
+
+
+-
+JavaScript 로 생성하는 방식 두가지 (customElements.define 사용 es6 클래스를 등록하여 요소 업그레이드, 기존 createElement 사용 등록)
+
+1. Custom Elements 스펙은 기본적으로 es6 클래스를 등록하도록 정의 
+생성하려는 태그 이름과 기본 HTMLElement를 확장하는 자바스크립트 class를 사용하여 customElements.define()을 호출
+window.customElements.define('커스텀 태그 이름', 자바스크립트 클래스) 태그 이름에 자바스크립트 클래스를 Custom Elements로 등록
+
+
+> registerelement vs customelements.define
+registerelement 는 더 이상 사용되지 않음 이 기능은 더 이상 권장되지 않습니다. 
+customElements.define() 사용 권장으로 변경!
+
+
+> 사용자설정 요소는 존재하는 동안 실행되는 코드에 대한 특수한 수명 주기 후크를 정의할 수 있습니다. 이를 사용자설정 요소 반응이라고 합니다.
+connectedCallback:  
+사용자 정의 요소가 문서의 DOM에 처음 연결될 때 호출됩니다.
+
+disconnectedCallback: 
+사용자 정의 요소가 문서의 DOM과 연결되어 있지 않을 때 호출됩니다.
+(el.remove() 호출하면 disconnectedCallback()을 호출)
+
+attributeChangedCallback: 
+사용자 정의 요소의 속성 중 하나가 추가, 제거 또는 변경되면 호출됩니다.
+(브라우저는 observedAttributes 배열의 허용 목록에 추가된 모든 속성에 대해 attributeChangedCallback()을 호출)
+(style 또는 class와 같은 일반적인 속성, el.setAttribute(...) 호출하면 attributeChangedCallback()을 호출)
+
+adoptedCallback: 
+사용자 정의 요소를 새 문서로 이동할 때 호출됩니다.
+
+
+> 예제
+<flag-icon country="nl"></flag-icon>
+class FlagIcon extends HTMLElement {
+	constructor() {
+		super();
+		this._countryCode = null;
+	}
+
+	static get observedAttributes() { 
+		return ["country"]; 
+	}
+	attributeChangedCallback(name, oldValue, newValue) {
+		// name will always be "country" due to observedAttributes
+		this._countryCode = newValue;
+		this._updateRendering();
+	}
+
+	connectedCallback() {
+		this._updateRendering();
+	}
+
+	get country() {
+		return this._countryCode;
+	}
+	set country(v) {
+		this.setAttribute("country", v);
+	}
+
+	_updateRendering() {
+		// Left as an exercise for the reader. But, you'll probably want to
+		// check this.ownerDocument.defaultView to see if we've been
+		// inserted into a document with a browsing context, and avoid
+		// doing any work if not.
+	}
+}
+// define(tagName, constructor, options)
+//window.customElements.define('flag-icon', class extends HTMLElement {});
+window.customElements.define("flag-icon", FlagIcon);
+파서는 flag-icon태그를 볼 때마다 FlagIcon클래스의 새 인스턴스를 생성하고 새로운 country 속성 에 대해 코드에 알려주고 요소의 내부 상태를 설정하고 적절한 경우 렌더링을 업데이트하는 데 사용
+
+
+> 사용자 기능이 내장되어 있으며, 재사용이 가능한 custom element
+class PlasticButton extends HTMLButtonElement {
+	constructor() {
+		super();
+
+		this.addEventListener("click", () => {
+			// Draw some fancy animation effects!
+		});
+	}
+}
+customElements.define("plastic-button", PlasticButton, { extends: "button" });
+
+const plasticButton = document.createElement("button", { is: "plastic-button" });
+plasticButton.textContent = "Click me!";
+
+
+
+2. 기존 createElement 의 DOM API를 사용하여 생성
+const flagIcon = document.createElement("flag-icon");
+flagIcon.country = "jp";
+document.body.appendChild(flagIcon);
+
+
+
+-
+기본 HTML 요소 확장 (사용자 태그가 아닌 브라우저가 기본 제공하는 HTML 태그 기능 확장)
+사용자설정 기본 제공 요소는 브라우저의 기본 제공 HTML 태그 중 하나를 확장하는 사용자설정 요소입니다. 
+기존 요소 확장의 주요 이점은 해당 기능(DOM 속성, 메서드, 접근성)을 모두 얻을 수 있다는 점입니다.
+
+요소를 확장하려면 올바른 DOM 인터페이스에서 상속하는 클래스 정의를 생성해야 합니다. 
+예를 들어, <button>을 확장하는 사용자설정 요소는 HTMLElement가 아니라 HTMLButtonElement에서 상속해야 합니다.
+마찬가지로, <img>를 확장하는 요소는 HTMLImageElement를 확장해야 합니다.
+
+<button> 확장:
+// See https://html.spec.whatwg.org/multipage/indices.html#element-interfaces
+// for the list of other DOM interfaces.
+class FancyButton extends HTMLButtonElement {
+  constructor() {
+    super(); // always call super() first in the constructor.
+    this.addEventListener('click', e => this.drawRipple(e.offsetX, e.offsetY));
+  }
+
+  // Material design ripple animation.
+  drawRipple(x, y) {
+    let div = document.createElement('div');
+    div.classList.add('ripple');
+    this.appendChild(div);
+    div.style.top = `${y - div.clientHeight/2}px`;
+    div.style.left = `${x - div.clientWidth/2}px`;
+    div.style.backgroundColor = 'currentColor';
+    div.classList.add('run');
+    div.addEventListener('transitionend', e => div.remove());
+  }
+}
+
+customElements.define('fancy-button', FancyButton, {extends: 'button'});
+
+
+사용자는 기본 태그에 is="" 속성을 추가하여 이 요소를 선언 (일부 브라우저는 is="" 구문 구현을 지원하지 않습니다.)
+<button is="fancy-button" disabled>Fancy button!</button>
+
+또는 자바스크립트로 인스턴스를 생성
+// Custom elements overload createElement() to support the is="" attribute.
+let button = document.createElement('button', {is: 'fancy-button'});
+button.textContent = 'Fancy button!';
+button.disabled = true;
+document.body.appendChild(button);
+
+또는 new 연산자를 사용
+let button = new FancyButton();
+button.textContent = 'Fancy button!';
+button.disabled = true;
+
+
+
+-
+정리
+window.customElements.define: 태그 이름과 클래스를 연결해 준다.
+태그 이름에는 반드시 하나 이상의 -를 포함해야 한다.
+constructor: 인스턴스의 생성이며 DOM 조작은 할 수 없다.
+connectedCallback / disconnectedCallback: 엘리먼트가 DOM에 추가/제거되었다. DOM 조작을 할 수 있다.
+attributeChangedCallback / observedAttributes: 관심 있는 속성들을 모니터링 할 수 있다.
+adoptedCallback: 문서 이동
+
+> window.customElements.define: 태그 이름에 자바스크립트 클래스를 Custom Elements로 등록한다.
+> window.customElements.define(‘current-time’, CurrentTime);
+> window.customElements.get: 태그 이름으로 정의된 클래스를 가져온다.
+const CurrentTime = window.customElements.get(‘current-time’); 
+const anotherTime = new CurrentTime();
+> window.customElements.whenDefined: 태그 이름의 Custom Elements가 등록될 때 이벤트를 받는다.
+customElements.whenDefined(‘current-time’).then(() => { console.log(‘current-time defined!’); });
+
+> Customized built-in elements
+HTML 표준에 정의된 div, inputtable등의 빌트인 엘리먼트들을 상속하는 형태
+빌트인 엘리먼트를 상속받는 이유는 해당 엘리먼트의 동작을 그대로 상속받으면서도 이외의 기능이나 스타일을 추가하기 위함
+> Autonomous custom elements
+HTMLElement를 직접 상속받는 Custom Elements의 형태
+'-'를 반드시 포함하면서 HTMLElement를 바로 상속하는 명시적인 방법
+*/
+
+
+// 예1
+// Customized built-in elements: HTML 표준에 정의된 div, inputtable등의 빌트인 엘리먼트들을 상속하는 형태
+class ExpandingList extends HTMLUListElement {
+	constructor() {
+		// Always call super first in constructor
+		super();
+		
+	}
+}
+customElements.define('expanding-list', ExpandingList, { extends: "ul" });
+
+class WordCount extends HTMLParagraphElement {
+	constructor() {
+		// Always call super first in constructor
+		super();
+
+		function countWords(node){
+			const text = node.innerText || node.textContent;
+			return text.split(/\s+/g).length;
+		}
+
+		// count words in element's parent element
+		const wcParent = this.parentNode;
+
+		// Create a shadow root
+		const shadow = this.attachShadow({mode: 'open'});
+
+		// Create text node and add word count to it
+		const count = `Words: ${countWords(wcParent)}`;
+		const text = document.createElement('span');
+		text.textContent = count;
+
+		// Append it to the shadow root
+		shadow.appendChild(text);
+
+		// Update count when element content changes
+		setInterval(function() {
+			const count = `Words: ${countWords(wcParent)}`;
+			text.textContent = count;
+		}, 200);
+	}
+}
+customElements.define('word-count', WordCount, { extends: 'p' });
+
+
+// 예2 
+// Autonomous custom elements: HTMLElement를 직접 상속받는 Custom Elements의 형태
+class CurrentTimeElement extends HTMLElement { // 커스텀 앨리먼트 방식
+	constructor() {
+		// 클래스 초기화. 속성이나 하위 노드는 접근할 수는 없다.
+		super();
+	}
+
+	// 기본 스팩 
+	// 커스텀 엘리먼트가 처음 document의 DOM에 연결될 때 호출
+	connectedCallback() {
+		// DOM에 추가되었다. 렌더링 등의 처리를 하자.
+		this.start();
+		
+		/*
+		connectedCallback이 실행되는 시점에 이 엘리먼트가 DOM에 추가되어 있기는 하지만, 
+		자식 엘리먼트들은 아직 DOM에 추가되지 않았다. 
+		따라서 자식 엘리먼트를 수정할 수는 있더라도, HTML에서 삽입한 자식 엘리먼트들에 접근할 수는 없다는 점에 유의
+		*/
+		console.log(this.firstChild); // null <--- 아직 자식 엘리먼트에 접근할 수는 없다.
+		console.log(this.innerHTML); // "" <--- 아직 자식 엘리먼트에 접근할 수는 없다.
+	}
+
+	// 기본 스팩 
+	// 사용자 정의 요소가 문서의 DOM과 연결되어 있지 않을 때 호출
+	disconnectedCallback() {
+		// DOM에서 제거되었다. 엘리먼트를 정리하는 일을 하자.
+		this.stop();
+	}
+
+	// 기본 스팩 
+	// 속성의 변화를 감시
+	// 브라우저는 observedAttributes 배열의 허용 목록에 추가된 모든 속성에 대해 attributeChangedCallback()을 호출
+	// 성능 최적화와 관련 높음 (사용자가 style 또는 class와 같은 일반적인 속성을 변경할 때 개발자는 쓸데없이 수많은 콜백을 받는 것을 원치 않음)
+	static get observedAttributes() {
+		// 모니터링 할 속성 이름
+		return ['locale'];
+	}
+
+	// 기본 스팩 
+	// 속성의 변화에 반응
+	// 사용자 정의 요소의 속성 중 하나가 추가, 제거 또는 변경되면 호출 (observedAttributes 속성에 나열된 특성만 이 콜백을 수신)
+	attributeChangedCallback(attrName, oldValue, newValue) {
+		// 속성이 추가/제거/변경되었다.
+		if(attr == 'locale') {
+			this.textContent = `Hello, ${newValue}`;
+		}else {
+			this[attrName] = newValue;
+		}
+	}
+
+	// 기본 스팩 
+	// 사용자 정의 요소를 새 문서로 이동할 때 호출 (해당 엘리먼트가 다른 Document에서 옮겨져 올 때 수행)
+	// 사용자설정 요소가 새 document(예: document.adoptNode(el)라고도 함)로 이동된 경우
+	adoptedCallback(oldDoc, newDoc) {
+		// 다른 Document에서 옮겨져 왔음
+		// 자주 쓸 일은 없을 것.
+	}
+
+	// 사용자 함수
+	start() {
+		// 필요에 따라 메서드를 추가할 수 있다.
+		// 이 클래스 인스턴스는 HTMLElement이다.
+		// 따라서 `document.querySelector('current-time').start()`로 호출할 수 있다.
+		this.stop();
+		this._timer = window.setInterval(() => {
+			this.innerText = new Date().toLocaleString(this.locale);
+		}, 1000);
+	}
+
+	// 사용자 함수
+	stop() {
+		// 이 메서드 역시 CurrentTime클래스의 필요에 의해 추가했다.
+		if (this._timer) {
+			window.clearInterval(this._timer);
+			this._timer = null;
+		}
+	}
+}
+customElements.define('current-time', CurrentTimeElement); // <current-time> 태그가 CurrentTimeElement 클래스를 사용하도록 한다.
+
+class CurrentTime { // 기존 일반 앨리먼트 방식 
+	constructor(el) {
+		this._el = el;
+		this._init();
+		this.start();
+	}
+	_init() {
+		// 속성 변경을 모니터
+		this._localeChangedObserver = new MutationObserver(mutations => {
+			mutations.forEach(mutation => {
+				if (mutation.type === 'attributes' && mutation.attributeName === 'locale') {
+					this.locale = this._el.getAttribute('locale');
+				}
+			});
+		});
+		this._localeChangedObserver.observe(this._el, {
+			attributes: true,
+			attributeFilter: ['locale']
+		});
+		// 엘리먼트가 DOM에서 제거되었는지 모니터
+		this._disconnectedObserver = new MutationObserver(mutations => {
+			mutations.forEach(mutation => {
+				if (mutation.type === 'childList' &&
+					Array.prototype.slice.call(mutation.removedNodes).indexOf(this._el) >= 0) {
+					this.dispose();
+				}
+			});
+		});
+		this._disconnectedObserver.observe(this._el.parentNode, {
+			childList: true
+		});
+	}
+	start() {
+		this.stop();
+		this._timer = window.setInterval(() => {
+			this._el.innerText = new Date().toLocaleString(this.locale);
+		}, 1000);
+	}
+	stop() {
+		if (this._timer) {
+			window.clearInterval(this._timer);
+			this._timer = null;
+		}
+	}
+	dispose() {
+		this.stop();
+		this._localeChangedObserver.disconnect();
+		this._disconnectedObserver.disconnect();
+	}
+	static create(el) {
+		return new CurrentTime(el);
+	}
+}
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('.current-time').forEach(el => {
+		CurrentTime.create(el);
+	});
+}, false);
+
+
+
+// ========== ========== ========== ========== ========== ========== ========== ========== ========== ========== 
+
+
+
+// shadow DOM 사용하기 - Element.attachShadow()
+// V0, V1 등 버전관리되고 있는 스팩
+// http://w3c.github.io/webcomponents/spec/shadow/
+// https://developers.google.com/web/fundamentals/web-components/shadowdom?hl=ko
+// https://gist.github.com/ebidel/2d2bb0cdec3f2a16cf519dbaa791ce1b
+/*
+-
+기존 방식 - 전역 영향
+document.body.appendChild(document.createElement('div')).innerHTML = '<style>p { background-color: #82b74b; }</style><p id="non-shadow">Yey!</p>';
+
+Shadow DOM은 웹 개발의 공통 문제에 대한 솔루션을 제공
+격리된 DOM: 구성 요소의 DOM은 자체 포함됩니다 (예: document.querySelector()는 구성 요소의 Shadow DOM에 노드를 반환하지 않음).
+범위가 지정된 CSS: Shadow DOM 내부에 정의한 CSS는 범위가 Shadow DOM으로 지정되어 있습니다. 스타일 규칙은 누출되지 않으며 페이지 스타일은 스며들지 않습니다.
+CSS 단순화: 범위가 지정된 DOM이란 간단한 CSS 선택기와 훨씬 일반적인 ID/클래스 이름을 사용할 수 있으며 이름 충돌에 대해 걱정할 필요가 없음을 의미합니다.
+생산성: 큰(전역) 단일 페이지보다 DOM 청크에서 앱을 고려합니다.
+
+
+-
+쉐도우돔 방식 - 돔 자체의 분리 역할! 
+쉐도우 루트를 기준으로 id를 중복해서 써도 되고, 루트 안팎의 동일한 이름의 class역시 전혀 다른 클래스의 역할을 수행한다. 
+HTML 문서 하나에 수천 개 되는 엘리먼트의 스타일을 한 번에 모두 관리하기 위해 class 이름을 고민할 필요도, id의 중복이 무서워 쓰지 못하는 일도 필요 없다. 쉐도우 돔 하나당 하나의 문서를 관리하듯, 적절한 id를 배분하면, 혹은 그마저도 필요 없이 짧은 셀렉터로 충분히 그 역할을 수행할 수 있다.
+document.body.appendChild(document.createElement('div')).attachShadow({mode: 'open'}).innerHTML = '<p id="shadow">Yey!</p>';
+
+
+-
+iframe
+쉐도우 돔을 사용하지 않더라도 iframe을 사용하면 비슷한 기능을 수행할 수 있다. 
+그러나 iframe을 사용한 DOM의 분리는 다음과 같은 단점이 있다.
+1. http 요청이 한차례 더 일어난다
+2. 별도의 페이지이기 때문에, 소비되는 리소스도 높고 느리다
+3. iframe의 주소가 같은 도메인이 아닌 경우 접근 불가능하다
+트위터는 iframe형식으로 지원하던 기능을 브라우저가 지원하는 경우 쉐도우 돔 방식으로 전환
+
+
+-
+css
+
+:host : shadow root로 지정된 웹 구성 요소에 스타일을 적용합니다.
+:host-context(<selector>) : 웹 구성 요소 혹은 상위 요소의 선택자가 <selector>와 일치하면, 웹 구성 요소의 자식 요소에 스타일을 적용합니다.
+::slotted(<compound-selector>) : 지정한 복합 선택자와 일치하는 슬롯 콘텐츠에 스타일을 적용합니다.
+
+외부에서 Shadow DOM 내부를 스타일링하기
+https://www.html5rocks.com/ko/tutorials/webcomponents/shadowdom-201/
+
+<style>
+  #host::shadow span {
+    color: red;
+  }
+</style>
+
+<div id="host">
+  <span>Light DOM</span>
+</div>
+
+< script >
+var host = document.querySelector('div');
+var root = host.createShadowRoot();
+root.innerHTML = "<span>Shadow DOM</span>" +"<content></content>";
+< /script >
+
+
+
+-
+slot
+
+(슬롯은 사용자가 컴포넌트 내부에 원하는 마크업을 채울 수 있도록 미리 선언해놓은 자리 표시자입니다.)
+(재사용을 높여주는 태그)
+(웹컴포넌트 기술 항목 중 html templates 에서 사용되는 스팩)
+(쉐도우 돔의 슬롯이 가진 이름에 맞는 라이트 돔의 노드가 각 슬롯에 삽입된다)
+// https://wit.nts-corp.com/2019/03/27/5552
+// https://developers.google.com/web/fundamentals/web-components/shadowdom?hl=ko#slots
+// https://html.spec.whatwg.org/multipage/scripting.html#the-slot-element
+// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot
+// https://developer.mozilla.org/ko/docs/Web/Web_Components/Using_templates_and_slots
+
+Shadow DOM은 <slot> 요소를 사용하여 여러 DOM 트리를 함께 구성합니다. 
+슬롯은 사용자가 자신의 마크업을 사용하여 채울 수 있는 구성 요소 내부의 자리표시자입니다. 
+슬롯을 한 개 이상 정의하여 외부 마크업을 초대하여 구성 요소의 Shadow DOM에 렌더링합니다. 
+기본적으로 '사용자의 마크업을 여기에 렌더링한다' 고 말하는 것과 같습니다.
+
+예제1)
+html 코드 (또는 template 이나 shadow dom 내부 slot 태그사용)
+<div id="slot-test">
+	<!-- Light DOM -->
+	<span slot="title">Hello</span>
+	<span slot="desc">world</span>
+</div>
+
+javascript 코드
+document.querySelector('#slot-test').attachShadow({mode: 'open'}).innerHTML = `
+	<h1>
+		<!-- slot="title" 속성이 있는 태그를 아래 slot name="title" 위치에 위치하도록 함 //-->
+		<slot name="title"></slot>
+	</h1>
+	<p>
+		<!-- slot="desc" 속성이 있는 태그를 아래 slot name="desc" 위치에 위치하도록 함 //-->
+		<slot name="desc"></slot>
+	</p>
+`;
+
+
+예제2)
+1. showdow dom 영역
+#shadow-root
+  <div id="tabs">
+    <slot id="tabsSlot" name="title"></slot>
+  </div>
+  <div id="panels">
+    <slot id="panelsSlot"></slot>
+  </div>
+
+
+2. 구성 요소 사용자는 다음과 같이 <fancy-tabs>를 선언합니다.
+<fancy-tabs>
+  <button slot="title">Title</button>
+  <button slot="title" selected>Title 2</button>
+  <button slot="title">Title 3</button>
+  <section>content panel 1</section>
+  <section>content panel 2</section>
+  <section>content panel 3</section>
+</fancy-tabs>
+
+<!-- Using <h2>'s and changing the ordering would also work! -->
+<fancy-tabs>
+  <h2 slot="title">Title</h2>
+  <section>content panel 1</section>
+  <h2 slot="title" selected>Title 2</h2>
+  <section>content panel 2</section>
+  <h2 slot="title">Title 3</h2>
+  <section>content panel 3</section>
+</fancy-tabs>
+
+
+3. slot 위치에 적용된 모습
+<fancy-tabs>
+  #shadow-root
+	<div id="tabs">
+	  <!-- name="title" 로 지정한 slot를 여기에 넣는다 -->
+      <slot id="tabsSlot" name="title">
+        <button slot="title">Title</button>
+        <button slot="title" selected>Title 2</button>
+        <button slot="title">Title 3</button>
+      </slot>
+    </div>
+	<div id="panels">
+	  <!-- slot name 속성을 설정하지 않고 넣었다는 것은, slot 매칭을 하지 않은 태그를 모두 여기에 넣겠다는 의미 -->
+      <slot id="panelsSlot">
+        <section>content panel 1</section>
+        <section>content panel 2</section>
+        <section>content panel 3</section>
+      </slot>
+    </div>
+</fancy-tabs>
+
+
+
+-
+정리 
+> textarea, input, image와 같은 엘리먼트들은 쉐도우 돔을 가질 수 없다. (가질 수 있는 것이 이상하다)
+> 쉐도우 돔은 여러번 중첩될 수 있다. slot도 마찬가지이다.
+> 슬롯에 배포된 엘리먼트는 slot.assignedNodes()를 통해 접근할 수 있다.
+> 슬롯안의 엘리먼트가 변경될 때 slotchange 이벤트를 slot엘리먼트에 리스너를 달아 받아오자.
+> 쉐도우 호스트의 스타일은 :host로 변경한다.
+> 쉐도우 호스트의 클래스에 따른 스타일은 :host-context(.classname)으로 가능하다.
+> 슬롯 스타일은 ::sloted(h1) 방식으로 한다.
+> attachShadow({mode: 'closed'})로 쉐도우 루트를 생성하면, 쉐도우 돔에 접근이 불가능해진다. (폐쇄형 섀도우 트리를 만들면 외부 자바스크립트는 구성 요소의 내부 DOM에 액세스할 수 없습니다. 보안적인 성격보다 폐쇄형 모드는 단지 외부 JS가 요소의 내부 DOM에 침입하지 못하도록 방지하는게 강함)
+> 쉐도우 돔 내부에서 발생한 이벤트의 target은 외부에서 쉐도우 호스트로 변경된다.
+*/
+
+
+// 예
+// 컴포넌트: 커스텀 엘리먼트 + 쉐도우 돔 + slot = DOM OOP
+/*
+// GOOD! DOM OOP!
+const myElement = document.querySelector('my-element');
+myElement.yell();
+
+// BAD IDEA!
+const yey = document.querySelector('my-element').shadowRoot.querySelector('div').innerText;
+alert(yey);
+*/
+let selected_ = null;
+class Tabs extends HTMLElement {
+	constructor() {
+		// Always call super first in constructor
+		super();
+		
+		// Create shadow DOM for the component.
+		/*
+		mode
+		open: 그림자 루트 요소는 루트 외부의 JavaScript에서 액세스 할 수 있습니다 
+		closed: 닫힌 섀도우 루트의 노드에 대한 액세스를 외부의 JavaScript에서 거부합니다.
+		*/
+		let shadowRoot = this.attachShadow({mode: 'open'}); // this (현 클래스의 element)에 attachShadow 를 적용!
+		shadowRoot.innerHTML = `
+			<style>
+			:host {
+				display: inline-block;
+				width: 650px;
+				font-family: 'Roboto Slab';
+				contain: content;
+			}
+			:host([background]) {
+				background: var(--background-color, #9E9E9E);
+				border-radius: 10px;
+				padding: 10px;
+			}
+			#panels {
+				box-shadow: 0 2px 2px rgba(0, 0, 0, .3);
+				background: white;
+				border-radius: 3px;
+				padding: 16px;
+				height: 250px;
+				overflow: auto;
+			}
+			#tabs {
+				display: inline-flex;
+				-webkit-user-select: none;
+				user-select: none;
+			}
+			#tabs slot {
+				display: inline-flex; /* Safari bug. Treats <slot> as a parent */
+			}
+			/* Safari does not support #id prefixes on ::slotted
+				See https://bugs.webkit.org/show_bug.cgi?id=160538 */
+			#tabs ::slotted(*) {
+				font: 400 16px/22px 'Roboto';
+				padding: 16px 8px;
+				margin: 0;
+				text-align: center;
+				width: 100px;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				overflow: hidden;
+				cursor: pointer;
+				border-top-left-radius: 3px;
+				border-top-right-radius: 3px;
+				background: linear-gradient(#fafafa, #eee);
+				border: none; /* if the user users a <button> */
+			}
+			#tabs ::slotted([aria-selected="true"]) {
+				font-weight: 600;
+				background: white;
+				box-shadow: none;
+			}
+			#tabs ::slotted(:focus) {
+				z-index: 1; /* make sure focus ring doesn't get buried */
+			}
+			#panels ::slotted([aria-hidden="true"]) {
+				display: none;
+			}
+			</style>
+
+			<div id="tabs">
+				<slot id="tabsSlot" name="title"></slot>
+			</div>
+			<div id="panels">
+				<slot id="panelsSlot"></slot>
+			</div>
+		`;
+	}
+
+	connectedCallback() {
+		// slot
+		const tabsSlot = this.shadowRoot.querySelector('#tabsSlot');
+		const panelsSlot = this.shadowRoot.querySelector('#panelsSlot');
+
+		this.setAttribute('role', 'tablist');
+		
+		// assignedNodes() HTMLSlotElement
+		this.tabs = tabsSlot.assignedNodes({flatten: true});
+		this.panels = panelsSlot.assignedNodes({flatten: true}).filter(el => {
+			console.log('el', el);
+			return el.nodeType === Node.ELEMENT_NODE;
+		});
+
+		console.log('tabs', this.tabs);
+		console.log('panels', this.panels);
+
+		// Add aria role="tabpanel" to each content panel.
+		for (let [i, panel] of this.panels.entries()) {
+			panel.setAttribute('role', 'tabpanel');
+			panel.setAttribute('tabindex', 0);
+		}
+
+		// Save refer to we can remove listeners later.
+		this._boundOnTitleClick = this._onTitleClick.bind(this);
+		this._boundOnKeyDown = this._onKeyDown.bind(this);
+		tabsSlot.addEventListener('click', this._boundOnTitleClick);
+		tabsSlot.addEventListener('keydown', this._boundOnKeyDown);
+
+		this.selected = this._findFirstSelectedTab() || 0;
+	}
+
+	disconnectedCallback() {
+		const tabsSlot = this.shadowRoot.querySelector('#tabsSlot');
+		tabsSlot.removeEventListener('click', this._boundOnTitleClick);
+		tabsSlot.removeEventListener('keydown', this._boundOnKeyDown);
+	}
+
+	adoptedCallback() {
+
+	}
+
+	attributeChangedCallback() {
+
+	}
+
+	// this.selected 값불러오기
+	get selected() {
+		return selected_;
+	}
+
+	// this.selected = 값설정
+	set selected(idx) {
+		selected_ = idx;
+		this._selectTab(idx);
+		// Updated the element's selected attribute value when
+		// backing property changes.
+		this.setAttribute('selected', idx);
+	}
+
+	// 사용자 함수 
+	_onTitleClick(e) { 
+		if (e.target.slot === 'title') {
+			this.selected = this.tabs.indexOf(e.target);
+			e.target.focus();
+		}
+	}
+  
+	// 사용자 함수 
+	_onKeyDown(e) {
+		switch (e.code) {
+			case 'ArrowUp':
+			case 'ArrowLeft':
+				e.preventDefault();
+				var idx = this.selected - 1;
+				idx = idx < 0 ? this.tabs.length - 1 : idx;
+				this.tabs[idx].click();
+				break;
+			case 'ArrowDown':
+			case 'ArrowRight':
+				e.preventDefault();
+				var idx = this.selected + 1;
+				this.tabs[idx % this.tabs.length].click();
+				break;
+			default:
+				break;
+		}
+	}
+
+	// 사용자 함수 
+	_findFirstSelectedTab() {
+		let selectedIdx;
+		for (let [i, tab] of this.tabs.entries()) {
+			tab.setAttribute('role', 'tab');
+			// Allow users to declaratively select a tab
+			// Highlight last tab which has the selected attribute.
+			if (tab.hasAttribute('selected')) {
+				selectedIdx = i;
+			}
+		}
+		return selectedIdx;
+	}
+
+	// 사용자 함수 
+	_selectTab(idx = null) {
+		for (let i = 0, tab; tab = this.tabs[i]; ++i) {
+			let select = i === idx;
+			tab.setAttribute('tabindex', select ? 0 : -1);
+			tab.setAttribute('aria-selected', select);
+			this.panels[i].setAttribute('aria-hidden', !select);
+		}
+	}
+}
+customElements.define('fancy-tabs', Tabs);
+
+
+
+// ========== ========== ========== ========== ========== ========== ========== ========== ========== ========== 
+
+
+
+// 템플릿 (템플릿과 slot 태그 활용을 통해 재사용성을 극대화할 수 있음)
+// https://html.spec.whatwg.org/multipage/scripting.html#the-template-element
+// https://kyu.io/%EC%9B%B9-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B84%e2%80%8a-%e2%80%8atemplate-element-html-imports/
+/*
+템플릿 엔진들(Mustache, Handlebars 등)은 유용하지만 문자열로 처리되기에 어쩔 수 없는 문제점들을 내포한다. 
+XSS 공격에 노출될 위험이 있으며, innerHTML의 사용이 강제된다. 
+DOM API들을 템플릿에 사용할 수 없다는 것들이다. 
+이러한 문제들을 해결하기 위해 템플릿의 문자열 처리를 지양하고 엘리먼트로 처리하는 방법으로 템플릿 엘리먼트가 표준으로 만들어 졌다.
+
+
+-
+템플릿
+<template id="productrow">
+	<tr>
+		<td class="record"></td>
+		<td></td>
+	</tr>
+</template>
+
+
+-
+스크립트
+const template = document.querySelector('#productrow');
+const clone = document.importNode(template.content, true); // 또는 template.content.cloneNode(true);
+clone.querySelector('.record').innerText = '#';
+tableElement.appendChild(clone);
+
+템플릿 엘리먼트는 자바스크립트 코드로 많은 양의 코드를 적지 않아도 되고, 조건에 따라 DOM의 변경도 가능하다. 
+이러한 변경은 강력한 DOM API들을 그대로 사용할 수 있어 편리하다. 
+템플릿 엘리먼트는 DOM에 한 번 정의되면 필요할 때마다 복사하여 붙여넣기 때문에 성능도 훌륭하다.
+
+그러나, 템플릿 엘리먼트는 템플릿이 HTML로 작성되어야 한다는 것이 오히려 단점이 되기도 한다. 
+컴포넌트의 컨트롤러에 해당하는 자바스크립트와 템플릿 뷰에 해당하는 HTML이 분리되어야 한다는 점이다. 
+컴포넌트와 모듈이 정확히 동의어라고 할 수는 없지만, 모듈로서 분리되어 재사용 될 수 있어야 의미가 있다. 
+그런데 템플릿 엘리먼트와 커스텀 엘리먼트(Custom Elements)를 컴포넌트로 구성하려면 HTML, JS 두 개의 파일이 필요하다. 
+이 방식은 웹 컴포넌트를 모듈로 만들기에 큰 걸림돌이다.
+
+
+-
+document.importNode()
+https://developer.mozilla.org/ko/docs/Web/API/Document/importNode
+현재 문서가 아닌 외부 문서의 노드를 복사하여 현재 문서에 넣을 수 있도록 해줍니다.
+
+var node = document.importNode(externalNode, deep);
+externalNode : 다른 문서에서 가져올 노드입니다.
+deep : 다른 문서에서 노드를 가져올 때 노드의 자식 요소들을 포함하여 가져올 것인지에 대한 여부를 결정합니다.
+
+var iframe = document.getElementsByTagName("iframe")[0];
+var oldNode = iframe.contentDocument.getElementById("myNode");
+var newNode = document.importNode(oldNode, true);
+document.getElementById("container").appendChild(newNode);
+
+
+-
+HTMLTemplateElement.content
+https://developer.mozilla.org/en-US/docs/Web/API/HTMLTemplateElement/content
+<template> element's template contents
+<template>요소에는 DocumentFragment해당 HTMLTemplateElement.content속성이 들어 있습니다.
+var templateElement = document.querySelector("#foo");
+var documentFragment = templateElement.content.cloneNode(true);
+
+
+-
+JSX + Virtual DOM
+프론트엔드 개발이 컴포넌트화 되면서, 컴포넌트들이 그리는 여러 개의 템플릿들을 효율적으로 처리해주는 리엑트(React: JSX + Virtual DOM)가 인기를 얻었다. 
+JSX는 ESCAScript의 확장으로 스크립트 내부에 직접 템플릿을 작성할 수 있게 해주며, Virtual DOM은 주어진 상태에 따라 DOM의 일부분만 업데이트 해주는 역할을 한다. 
+템플릿 관점에서 보자면, 리엑트는 상태에 따라 템플릿을 컴포넌트 단위로 업데이트 해주는 일을 한다고 할 수 있다. 
+JSX + Virtual DOM은 현재 가장 인기있는 템플릿 처리 방식이라 말할 수 있다.
+
+
+-
+템플릿 엘리먼트 + 웹 컴포넌트
+템플릿 엘리먼트는 스크립트와 스타일도 포함할 수 있다. 스크립트와 스타일은 템플릿에 있을때는 적용되지 않지만, 복사되어 Document에 붙을 때에 적용된다. 
+쉐도우 돔(Shadow DOM)과 시너지를 일으켜 웹 컴포넌트의 템플릿 기능을 수행하는 데 충분한 장점이라 할 수 있다.
+
+그러나, 템플릿 엘리먼트는 템플릿이 HTML로 작성되어야 한다는 것이 오히려 단점이 되기도 한다. 
+컴포넌트의 컨트롤러에 해당하는 자바스크립트와 템플릿 뷰에 해당하는 HTML이 분리되어야 한다는 점이다. 
+컴포넌트와 모듈이 정확히 동의어라고 할 수는 없지만, 모듈로서 분리되어 재사용 될 수 있어야 의미가 있다. 
+그런데 템플릿 엘리먼트와 커스텀 엘리먼트(Custom Elements)를 컴포넌트로 구성하려면 HTML, JS 두 개의 파일이 필요하다. 
+이 방식은 웹 컴포넌트를 모듈로 만들기에 큰 걸림돌이다.
+*/
+
+// 템플릿 지원여부 
+if('content' in document.createElement('template')) {
+
+}
+
+// 커스텀 앨리먼트 + 템플릿 엘리먼트 + 쉐도우 돔(Shadow DOM)
+customElements.define('my-paragraph',
+	class extends HTMLElement {
+		constructor() {
+			super();
+
+			// template
+			let template = document.getElementById('my-paragraph'); // #my-paragraph
+			let templateContent = template.content;
+
+			// Create a shadow root
+			const shadowRoot = this.attachShadow({mode: 'open'});
+			shadowRoot.appendChild(templateContent.cloneNode(true));
+		}
+	}
+);
+
+
+
+// ========== ========== ========== ========== ========== ========== ========== ========== ========== ========== 
+
+
+
+// import html (표준 지원 중단 될 것으로 보임)
+// https://www.html5rocks.com/ko/tutorials/webcomponents/imports/
+// Imports 안에서의 스크립팅 - document.currentScript.ownerDocument
+/*
+1. import의 mimetpye은 text/html입니다.
+2. 다른 출신(Origin)으로부터의 리소스는 CORS-가능상태(CORS-enabled)이어야 합니다.
+3. 동일한 URL로부터의 Imports는 한번만 탐색되고 파싱됩니다. 즉, import 내의 스크립트는 첫번째 import의 발견 시에만 한번 실행된다는 것을 뜻합니다.
+4. import 내의 스크립트는 순서대로 처리되지만 메인 도큐먼트의 파싱을 블록하지는 않습니다.
+5. import link는 "컨텐츠를 여기에 추가해주세요. (#include the content here)"를 의미하지 않습니다. 이것은 "파서, 이 문서를 불러와서 내가 나중에 쓸 수 있도록 작업을 시작해"라는 뜻입니다. 스크립트가 삽입 시(at import time) 실행되는 동안, 스타일시트, 마크업 그리고 다른 리소스들은 메인 페이지에 명시적으로 추가되어야 합니다. 이는 HTML Imports와 "여기에 컨텐츠를 로딩하고 렌더링해"라고 말하는 <iframe>의 가장 큰 차이점입니다.
+
+link.import는 다음과 같은 조건 하에서는 null입니다.
+1. 브라우저가 HTML Imports를 지원하지 않을 경우.
+2. <link>가 rel="import"를 가지지 않을 경우.
+3. <link>가 DOM에 추가되지 않은 경우.
+4. <link>가 DOM으로부터 제거된 경우.
+5. 리소스가 'CORS가 가능한 상태'가 아닐 경우.
+
+
+-
+Firefox는 HTML Imports를 싫어해 (https://hacks.mozilla.org/2014/12/mozilla-and-web-components/)
+구글을 필두로 한 웹 컴포넌트 그룹은 위의 모양으로 
+커스텀 엘리먼트(Custom Elements), 쉐도우 돔(Shadow DOM), 템플릿 엘리먼트(Template Element), HTML Imports 4개의 표준을 웹 컴포넌트 표준이라 정했다. 
+이후 템플릿 엘리먼트는 가장 먼저 안정화 되었고 IE를 제외한 모든 브라우저에서 네이티브로 지원한다. 
+커스텀 엘리먼트와 쉐도우 돔은 구현에 있어 몇 가지 의견을 수렴하면서 v1 스펙이 정의되어, 
+IE를 제외한 브라우저에서 이미 지원되고 있거나 개발 중이다. 그런데 HTML Imports에서 문제가 생겼다. 
+Firefox가 HTML Imports를 지원하지 않겠다고 선언한 것을 시작으로 다른 브라우저들도 구현에 나서지 않고 있기 때문이다.
+
+웹 컴포넌트 옹호론자들은 꾸준히 HTML Imports를 구현할 것을 요구했지만, 실현되지 않을 것으로 보인다. 
+HTML Imports에 여러가지 문제가 제기되었는데 그 중 몇 가지는 아래와 같다. 
+브라우저 제작사들은 이들 이유가 타당하다고 판단한 것 같다. (The Problem With Using HTML Imports For Dependency Management)
+> 이미 ES Module 표준이 만들어지고 있다. (현재는 이미 모든 브라우저에서 지원되고 있거나 개발 중이다)
+> 브라우저만을 위한 표준화 작업을 또 하고 싶지 않다.
+> 표준이 아니어도 폴리필로 매우 쉽게 구현 가능하다. (현재 폴리필도 1000라인이 안되며, 기능 구현만 고려하면 500여 라인 정도면 충분하다)
+> HTTP/2를 사용하면 여러 개 파일을 빠르게 받을 수 있다 해도, 여전히 번들링한 단일 파일을 받는 것이 빠르다. (정확히 표준에 관한 이야기는 아니지만, 구조상 같이 언급되는 경우가 많다)
+> De-Duping 할 수 없음(CDN 경로를 사용할 경우를 예상할 수 있는데, 동일한 파일들을 파악하여 처리하기 힘들다. ex) code.jquery.com/jquery-2.1.1.min.js vs maxcdn.bootstrapcdn.com/bootstrap/2.3.0/js/bootstrap.min.js)
+위에서 제기한 이유들 외에도 실제 프로젝트를 구성해보려면 바로 만나게 되는 큰 장벽이 있다. 웹팩(Webpack)을 사용할 수 없다. 
+이미 표준 같은 힘을 지닌 웹팩, 롤업과 같이 사용할 수 없는 점은 치명적이다. 
+현재는 polymer-webpack-loader가 나와있지만 겨우 2달 되었고 직접 사용해본 결과 기본적인 문제들의 해결이 필요해 보인다. 
+결국, 웹 컴포넌트를 작성하기 위해서는 폴리머(Polymer)등의 지원 프레임워크와 독립적인 도구들을 사용해야 한다는 결론으로 흐르게 된다.
+
+HTML Imports NO! Template Literals YES?
+HTML Imports는 브라우저 지원이 안 될 것이라는 것, 웹팩 생태계와 따로 놀고 있다는 점등을 인식하고 결국 방향이 바뀌고 있다. 
+Polymer가 웹팩 로더만 빠르게 지원했어도 더 나은 결과가 나오지 않았을까 생각한다. 
+지난주 있었던 Polymer Summit 2017에서는 Polymer 3.0 preview를 발표하며 새로운 방향을 보여주었다. 바로 HTML Imports를 포기하는 것이다. 
+HTML Imports는 ES Modules로 대체되었고, 템플릿 엘리먼트는 템플릿 리터럴(Template literals)로 바뀌었다. 이로써 웹팩 생태계의 시민이 된 것이다. 
+의존성 문제는 해결되었지만, 템플릿은? 결국, 문자열 기반의 템플릿으로 돌아가면 템플릿 엘리먼트의 장점을 잃어버리게 되는 것 아닌가? 
+다행히도 ES6 템플릿 리터럴은 단순한 문자열이 아니고 템플릿 역할을 수행할 멋진 가능성을 가지고 있다.
+
+el.innerHTML = `
+	<div>
+		<h1>${title}</h1>
+		<body>${content}</body>
+	</div>
+`;
+
+이것으로는 부족하다 여길 것이다. 다행히도 최근 hyper(HTML), lit-html, hyperx등의 템플릿 리터럴을 사용한 프로젝트가 인기를 얻고 있다. 
+lit-html의 설명에 따르면 이는 템플릿 리터럴를 받아 템플릿 엘리먼트를 생성한다. 
+만약 같은 템플릿으로 엘리먼트를 재생성하면, 이미 생성한 템플릿 엘리먼트를 사용해서 효율을 높이는 방향으로 만들어졌다고 한다. 
+문자열을 사용하되 템플릿 엘리먼트의 장점을 흡수하고자 하는 것이다. 
+크기도 minified기준으로 2kb가 채 안 된다고 하니, 바닐라 자바스크립트를 지향하는 경우에도 템플릿으로는 템플릿 리터럴를 이용한 이들 프로젝트를 사용하는 것이 좋아 보인다.
+
+종합하면, 
+모양새는 커스텀 엘리먼트와 쉐도우 돔이 자리를 지키고, HTML Imports의 하차로 인해 템플릿 엘리먼트까지 쓰지 못하게 되었다. 
+그리고 빈 자리를 표준인 ES Modules와 템플릿 리터럴이 차지할 것으로 보인다. 그리고 템플릿 리터럴을 활용한 프로젝트들을 주시할 필요가 있겠다. 
+Polymer Summit의 발표가 보여준 방향이 웹 컴포넌트의 방향을 정한다 볼 수 없으나, 많은 사람이 고민하고 있던 문제들이 해결되는 모습이다. 
+무엇보다 웹팩의 시민이 되었으니 앞으로 웹 컴포넌트의 행보가 탄력을 받을 것으로 예상해본다.
+
+
+-
+Imports 안에서의 스크립팅 - document.currentScript.ownerDocument
+Imports는 메인 도큐먼트 안에 있지 않습니다. 
+그 주위를 맴돌고 있습니다. 그러나, 여러분의 import는 메인 도큐먼트가 맹위를 떨치는 동안에도 여전히 메인 페이지에서 동작할 수 있습니다. 
+다음과 같이 Import는 그 자신의 DOM과 (혹은) import된 페이지의 DOM을 액세스할 수 있습니다.
+// importDoc은 import의 문서를 참조합니다.
+var importDoc = document.currentScript.ownerDocument;
+
+// mainDoc 메인 도큐먼트(우리가 import한 페이지)를 참조합니다.
+var mainDoc = document;
+
+// 첫번째 스타일시트를 이 import로부터 붙잡아 복제하고,
+// import된 문서에 추가합니다.
+var styles = importDoc.querySelector('link[rel="stylesheet"]');
+mainDoc.head.appendChild(styles.cloneNode(true));
+*/
+
+var link = document.querySelector('link[rel="import"]');
+//var content = link.import; // import의 컨텐츠를 액세스
+
+// Grab DOM from warning.html's document.
+//var el = content.querySelector('.warning');
+
+/* link.onload = function(e) {
+	console.log('Loaded import: ' + e.target.href);
+};
+link.onerror = function(e) {
+	console.log('Error loading import: ' + e.target.href);
+};*/
+//document.body.appendChild(el.cloneNode(true));
+
+// import에서 <template>를 복제합니다.
+//var template = content.querySelector('template');
+//var clone = document.importNode(template.content, true);
+//document.body.appendChild(clone);
+
+// link 동적 생성
+/*link = document.createElement('link');
+link.rel = 'import';
+link.href = 'file.html';
+link.onload = function(e) {
+	console.log('Loaded import: ' + e.target.href);
+};
+link.onerror = function(e) {
+	console.log('Error loading import: ' + e.target.href);
+};
+document.head.appendChild(link);*/
+
+// ----- -----
+
+// lit-html
+/*
+lit-html템플릿 리터럴을 사용 하여 JavaScript로 HTML 템플릿 을 작성할 수 있습니다 .
+lit-html 템플릿은 일반적인 JavaScript이며 HTML 작성의 친숙 함과 JavaScript의 결합
+
+
+import {html, render} from 'lit-html';
+
+// This is a lit-html template function. It returns a lit-html template.
+const helloTemplate = (name) => html`<div>Hello ${name}!</div>`;
+
+// This renders <div>Hello Steve!</div> to the document body
+render(helloTemplate('Steve'), document.body);
+
+// This updates to <div>Hello Kevin!</div>, but only updates the ${name} part
+render(helloTemplate('Kevin'), document.body);
+*/
+
+
+
+// ========== ========== ========== ========== ========== ========== ========== ========== ========== ========== 
+
+
+
+// import html 로드 후 shadow dom 구성
+// import
+let linkElement = document.createElement('link');
+linkElement.rel = 'import';
+linkElement.href = 'kit.html';
+linkElement.onload = function(event) {
+	let content = linkElement.import; // import의 컨텐츠를 액세스
+	let el = content.querySelector('body');
+
+	console.log('Loaded import: ', event);
+	console.log('content', content); // #document 
+
+	customElements.define('import-html',
+		class extends HTMLElement {
+			constructor() {
+				super();
+
+				// Create a shadow root
+				let shadowRoot = this.attachShadow({mode: 'open'});
+				let fragment = document.createDocumentFragment();
+
+				// 커스텀 엘리먼트 생성 
+				// 커스텀 앨리먼트에 임포트한 내용 삽입 
+				// 커스텀 앨리먼트 쉐도우 돔에 삽입 
+
+
+				// template
+				/*let template = document.getElementById('my-paragraph'); // #my-paragraph
+				let templateContent = template.content;
+				let clone = document.importNode(template.content, true);*/
+
+				// shadowRoot
+				shadowRoot.appendChild(el.cloneNode(true));
+				//shadowRoot.innerHTML = ``;
+			}
+		}
+	);
+};
+linkElement.onerror = function(event) {
+	console.log('Error loading import: ', event);
+};
+document.head.appendChild(linkElement);
+console.log('linkElement', linkElement);
+</script>
+</body>
+</html>
