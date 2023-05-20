@@ -17,24 +17,27 @@
 <input type="range">
 
 <!-- 테스트1 //-->
+<h2>테스트1</h2>
 <div id="test"></div>
 <template id="template">
 	<h1>Test</h1>
 	<p>유성민</p>
 	<script>
 		// JavaScript 실행 테스트 
-		alert('test');	
-		console.log('test');
+		alert('쉐도우돔 내부 스크립트 실행여부 테스트!');	
+		console.log('쉐도우돔 내부 스크립트 실행여부 테스트!');
 	</script>
 </template>
 
 <!-- 테스트2 //-->
+<h2>테스트2</h2>
 <api-test></api-test>
 <div class="custom">커스텀앨리먼트</div>
 <div class="shadow">쉐도우돔</div>
 
 <!-- 테스트3 //-->
 <!-- shadow dom 생성/연결할 shadow host 일반 요소(node) //-->
+<h2>테스트3</h2>
 <header id="shadow-host"></header>
 
 <!-- showdom 렌더링 -->
@@ -49,6 +52,7 @@
 </header-->
 
 <!-- 테스트4 //-->
+<h2>테스트4</h2>
 <div id="inside">
 	<!--ysm-test>test</ysm-test-->
 </div>
@@ -76,6 +80,7 @@
 </template>
 
 <!-- 테스트5 //-->
+<h2>테스트5</h2>
 <div id="html_import"></div>
 
 <!-- JS //-->
@@ -86,14 +91,14 @@
 테스트1
 */
 // shadow dom 만들고, shadow dom 내부 요소 셀렉터 (shadowRoot)
-// 템플릿 내부 JavaScript 실행되는지 테스트 (정상실행된다!)
+// 템플릿 내부 JavaScript 실행되는지 테스트 (결과: 정상실행된다!)
 var template = document.querySelector('#template');
 var content = document.importNode(template.content, true);
 var shadowRoot = document.querySelector('#test').attachShadow({mode: 'open'});
 shadowRoot.appendChild(content);
 if(document.querySelector('#test').shadowRoot) {
 	// document 에서 element 검색할 경우 
-	// console.log(document.querySelectorAll('p')); // 셀렉터 검출 안된다.
+	// console.log(document.querySelectorAll('p')); // 결과: 셀렉터 검출 안된다.
 
 	// shadowRoot 를 먼저 찾고, 내부 검색을 해야 한다.
 	console.log(document.querySelector('#test').shadowRoot.querySelectorAll('p'));
@@ -102,7 +107,7 @@ if(document.querySelector('#test').shadowRoot) {
 /*
 테스트2
 */
-// 커스텀앨리먼트 만들고, shadow dom 으로 DOM/CSS 캡슐화 
+// 커스텀앨리먼트 만들고, shadow dom 으로 DOM/CSS 캡슐화  (결과: 정상적 실행!)
 customElements.define('api-test', class extends HTMLElement {
 	constructor() {
 		// always call super() first in the constructor.
@@ -128,8 +133,7 @@ customElements.define('api-test', class extends HTMLElement {
 /*
 테스트4
 */
-// 쉐도우돔 내부 커스텀앨리먼트 테스트 
-// 생성/실행된다.
+// 쉐도우돔 내부 커스텀앨리먼트 테스트 (결과: 커스텀앨리먼트 선언/생성 및 실행된다.)
 var inside = document.querySelector('#inside');
 var template_inside_test = document.querySelector('#template_inside_test');
 inside.attachShadow({mode: 'open'}).appendChild(template_inside_test.content.cloneNode(true));
@@ -137,8 +141,7 @@ inside.attachShadow({mode: 'open'}).appendChild(template_inside_test.content.clo
 /*
 테스트3
 */
-// 쉐도우 돔 내부 JavaScrpt 전역 처리여부 테스트 
-// 쉐도우 돔이라고 하더라고, JavaScript 는 전역 영향을 준다!
+// 쉐도우 돔 내부 JavaScrpt 전역 처리여부 테스트 (결과: 쉐도우 돔이라고 하더라고, JavaScript 는 전역 영향을 준다!)
 (function() {
 	// shadow host
 	let shadowHost = document.querySelector('#shadow-host'); 
@@ -153,9 +156,11 @@ inside.attachShadow({mode: 'open'}).appendChild(template_inside_test.content.clo
 		</style>
 		<h1>Hello 유성민</h1>
 	`;
+
 	// JavaScript 는 캡슐화 되지 않는다. (ES6 Module 형태로 캠슐화)
 	/*let script = document.createElement('script');
 	script.text = `
+		// 전역(document) 에서 엘리먼트 셀렉트
 		var elements = document.querySelectorAll('*');
 		var node;
 		for(node of elements) {
@@ -163,6 +168,7 @@ inside.attachShadow({mode: 'open'}).appendChild(template_inside_test.content.clo
 		}
 	`;
 	shadowRoot.appendChild(script);*/
+
 	// shadow root 접근 
 	// attachShadow({mode: 'closed'}) 경우 접근 불가, null 반환
 	console.log(document.querySelector('#shadow-host').shadowRoot); 
@@ -173,7 +179,7 @@ inside.attachShadow({mode: 'open'}).appendChild(template_inside_test.content.clo
 /*
 테스트5
 */
-// 외부 소스 (외부 html 내부에 script 태그가 있을 경우, document에 넣어도 작동하지 않는다.) 
+// 외부 소스 (결과: 외부 html 내부에 script 태그가 있을 경우, document 에 넣어도 script code 는 작동하지 않는다.) 
 var getHTMLTest = function() {
 	$.ajax({
 		'type': 'get',
