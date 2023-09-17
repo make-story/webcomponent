@@ -5,7 +5,16 @@
 <title>shadow DOM 테스트</title>
 <!-- CSS //-->
 <style>
-
+/* 상위 스타일이 쉐도우돔 내부 스타일에 영향을 주는지 확인 */
+.custom {
+	color: #1b3de7;
+}
+.shadow {
+	color: #d74851;
+}
+div {
+	font-weight: bold;
+}
 </style>
 </head>
 <body>
@@ -121,7 +130,7 @@ customElements.define('api-test', class extends HTMLElement {
 				color: #EEE;
 			}
 			.shadow {
-				color: #FFF;
+				color: #888;
 			}
 			</style>
 			<div class="custom">커스텀앨리먼트</div>
